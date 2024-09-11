@@ -1,0 +1,10 @@
+.menu {
+  width: 200px;
+  background-color: #f3f4f6;
+  padding: 1rem;
+}
+
+.main-content {
+  flex: 1;
+  padding: 1rem;
+}
