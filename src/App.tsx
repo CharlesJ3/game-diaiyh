@@ -1,3 +1,5 @@
+/// <reference types="node" />
+
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { createGlobalStyle } from 'styled-components';
@@ -69,7 +71,6 @@ interface TrainingItem {
   active: boolean;
   unlocked: boolean;
   unlockHow: string;
-  speed: number;
   xpGain: number;
 }
 
@@ -82,6 +83,7 @@ interface Character {
   trainingOverallXp: number;
   trainingOverallLevel: number;
   trainingMaxXp: number;
+  trainingSpeed: number;
 }
 
 const App: React.FC = () => {
@@ -110,7 +112,6 @@ const App: React.FC = () => {
       active: false,
       unlocked: true,
       unlockHow: "Boss 1",
-      speed: 3,
       xpGain: 1
     },
     {
@@ -123,7 +124,6 @@ const App: React.FC = () => {
       active: false,
       unlocked: true,
       unlockHow: "Boss 1",
-      speed: 3.25,
       xpGain: 1
     },
     {
@@ -136,10 +136,8 @@ const App: React.FC = () => {
       active: false,
       unlocked: false,
       unlockHow: "Boss 1",
-      speed: 3.5,
       xpGain: 1
     },
-
   ]);
 
   const [character, setCharacter] = useState<Character>({
@@ -150,7 +148,8 @@ const App: React.FC = () => {
     overallMaxXp: 100,
     trainingOverallXp: 0,
     trainingOverallLevel: 1,
-    trainingMaxXp: 50
+    trainingMaxXp: 50,
+    trainingSpeed: 1
   });
 
   const handleMenuItemClick = (item: string) => {
@@ -169,35 +168,49 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    const intervals: NodeJS.Timeout[] = [];
-
-    training.forEach((item, index) => {
-      if (item.active) {
-        const interval = setInterval(() => {
-          setTraining(prevTraining => {
-            const updatedTraining = [...prevTraining];
-            const updatedItem = { ...updatedTraining[index] };
-
-            updatedItem.xp += updatedItem.xpGain;
-            if (updatedItem.xp >= updatedItem.maxXp) {
-              updatedItem.currentLevel += 1;
-              updatedItem.xp = 0;
-              updatedItem.maxXp = Math.floor(updatedItem.maxXp * 1.1);
+    const trainingInterval = setInterval(() => {
+      setTraining(prevTraining => {
+        return prevTraining.map(item => {
+          if (item.active) {
+            const newXp = item.xp + item.xpGain;
+            if (newXp >= item.maxXp) {
+              return {
+                ...item,
+                currentLevel: item.currentLevel + 1,
+                xp: newXp - item.maxXp,
+                maxXp: Math.floor(item.maxXp * 1.1)
+              };
+            } else {
+              return { ...item, xp: newXp };
             }
+          }
+          return item;
+        });
+      });
 
-            updatedTraining[index] = updatedItem;
-            return updatedTraining;
-          });
-        }, item.speed * 1000);
+      setCharacter(prevCharacter => {
+        const activeTrainings = training.filter(item => item.active);
+        const totalXpGain = activeTrainings.reduce((sum, item) => sum + item.xpGain, 0);
+        const newTrainingXp = prevCharacter.trainingOverallXp + totalXpGain;
 
-        intervals.push(interval);
-      }
-    });
+        if (newTrainingXp >= prevCharacter.trainingMaxXp) {
+          return {
+            ...prevCharacter,
+            trainingOverallLevel: prevCharacter.trainingOverallLevel + 1,
+            trainingOverallXp: newTrainingXp - prevCharacter.trainingMaxXp,
+            trainingMaxXp: Math.floor(prevCharacter.trainingMaxXp * 1.1)
+          };
+        } else {
+          return {
+            ...prevCharacter,
+            trainingOverallXp: newTrainingXp
+          };
+        }
+      });
+    }, character.trainingSpeed * 1000);
 
-    return () => {
-      intervals.forEach(clearInterval);
-    };
-  }, [training]);
+    return () => clearInterval(trainingInterval);
+  }, [training, character.trainingSpeed]);
 
   const renderActiveComponent = () => {
     switch (activeComponent) {
