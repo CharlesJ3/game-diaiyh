@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { createGlobalStyle } from 'styled-components';
 import Header from './components/Header';
@@ -9,6 +9,7 @@ import Compete from './components/Compete';
 import Prestige from './components/Prestige';
 import Settings from './components/Settings';
 import HelpTutorial from './components/HelpTutorial';
+import MainArea from './components/MainArea';
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -32,6 +33,7 @@ const MainSection = styled.section`
   flex: 5;
   display: flex;
   padding: .5rem;
+  overflow: auto;
 `;
 
 const MenuSection = styled.section`
@@ -52,6 +54,36 @@ interface Currencies {
   training: CurrencyItem[];
 }
 
+interface TrainingCategory {
+  school: 'elementary' | 'middle' | 'high' | 'college' | 'learnFromGhosts';
+  work: 'intern' | 'beginner' | 'intermediate' | 'expert' | 'master' | '10x';
+}
+
+interface TrainingItem {
+  title: string;
+  level: number;
+  category: TrainingCategory;
+  xp: number;
+  currentLevel: number;
+  maxXp: number;
+  active: boolean;
+  unlocked: boolean;
+  unlockHow: string;
+  speed: number;
+  xpGain: number;
+}
+
+interface Character {
+  name: string;
+  title: string;
+  overallXp: number;
+  overallLevel: number;
+  overallMaxXp: number;
+  trainingOverallXp: number;
+  trainingOverallLevel: number;
+  trainingMaxXp: number;
+}
+
 const App: React.FC = () => {
   const [currencies, setCurrencies] = useState<Currencies>({
     time: [{ amount: 0, name: "Time", active: true }],
@@ -65,16 +97,112 @@ const App: React.FC = () => {
     ]
   });
 
-  const [activeComponent, setActiveComponent] = useState('Train');
+  const [activeComponent, setActiveComponent] = useState('');
+
+  const [training, setTraining] = useState<TrainingItem[]>([
+    {
+      title: "Basic Training",
+      level: 1,
+      category: { school: "elementary", work: "intern" },
+      xp: 0,
+      currentLevel: 1,
+      maxXp: 10,
+      active: false,
+      unlocked: true,
+      unlockHow: "Boss 1",
+      speed: 3,
+      xpGain: 1
+    },
+    {
+      title: "Strength Training",
+      level: 1,
+      category: { school: "elementary", work: "intern" },
+      xp: 0,
+      currentLevel: 1,
+      maxXp: 15,
+      active: false,
+      unlocked: true,
+      unlockHow: "Boss 1",
+      speed: 3.25,
+      xpGain: 1
+    },
+    {
+      title: "Endurance Running",
+      level: 1,
+      category: { school: "middle", work: "beginner" },
+      xp: 0,
+      currentLevel: 1,
+      maxXp: 20,
+      active: false,
+      unlocked: false,
+      unlockHow: "Boss 1",
+      speed: 3.5,
+      xpGain: 1
+    },
+
+  ]);
+
+  const [character, setCharacter] = useState<Character>({
+    name: "Player",
+    title: "Novice",
+    overallXp: 0,
+    overallLevel: 1,
+    overallMaxXp: 100,
+    trainingOverallXp: 0,
+    trainingOverallLevel: 1,
+    trainingMaxXp: 50
+  });
 
   const handleMenuItemClick = (item: string) => {
     setActiveComponent(item);
   };
 
+  const toggleTrainingActive = (index: number) => {
+    setTraining(prevTraining => {
+      const updatedTraining = [...prevTraining];
+      updatedTraining[index] = {
+        ...updatedTraining[index],
+        active: !updatedTraining[index].active
+      };
+      return updatedTraining;
+    });
+  };
+
+  useEffect(() => {
+    const intervals: NodeJS.Timeout[] = [];
+
+    training.forEach((item, index) => {
+      if (item.active) {
+        const interval = setInterval(() => {
+          setTraining(prevTraining => {
+            const updatedTraining = [...prevTraining];
+            const updatedItem = { ...updatedTraining[index] };
+
+            updatedItem.xp += updatedItem.xpGain;
+            if (updatedItem.xp >= updatedItem.maxXp) {
+              updatedItem.currentLevel += 1;
+              updatedItem.xp = 0;
+              updatedItem.maxXp = Math.floor(updatedItem.maxXp * 1.1);
+            }
+
+            updatedTraining[index] = updatedItem;
+            return updatedTraining;
+          });
+        }, item.speed * 1000);
+
+        intervals.push(interval);
+      }
+    });
+
+    return () => {
+      intervals.forEach(clearInterval);
+    };
+  }, [training]);
+
   const renderActiveComponent = () => {
     switch (activeComponent) {
       case 'Train':
-        return <Train />;
+        return <Train training={training} setTraining={setTraining} character={character} setCharacter={setCharacter} toggleTrainingActive={toggleTrainingActive} />;
       case 'Play':
         return <Play />;
       case 'Compete':
@@ -86,7 +214,13 @@ const App: React.FC = () => {
       case 'Help/Tutorial':
         return <HelpTutorial />;
       default:
-        return <Train />;
+        return <MainArea
+          character={character}
+          training={training}
+          setCharacter={setCharacter}
+          setTraining={setTraining}
+          toggleTrainingActive={toggleTrainingActive}
+        />;
     }
   };
 
