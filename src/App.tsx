@@ -70,8 +70,9 @@ interface TrainingItem {
   unlocked: boolean;
   unlockHow: string;
   xpGain: number;
-  speed: number; // in milliseconds
+  speed: number;
   currentSpeed: number;
+  trainingPointsRequired: number;
 }
 
 interface Character {
@@ -84,6 +85,8 @@ interface Character {
   trainingOverallLevel: number;
   trainingMaxXp: number;
   trainingSpeed: number;
+  overallTrainingPoints: number;
+  activeTrainingPoints: number;
 }
 
 const App: React.FC = () => {
@@ -113,8 +116,9 @@ const App: React.FC = () => {
       unlocked: true,
       unlockHow: "Boss 1",
       xpGain: 1,
-      speed: 1000, // 1 second
-      currentSpeed: 0
+      speed: 1000,
+      currentSpeed: 0,
+      trainingPointsRequired: 1
     },
     {
       title: "Strength Training",
@@ -127,8 +131,9 @@ const App: React.FC = () => {
       unlocked: true,
       unlockHow: "Boss 1",
       xpGain: 1,
-      speed: 2000, // 2 seconds
-      currentSpeed: 0
+      speed: 2000,
+      currentSpeed: 0,
+      trainingPointsRequired: 2
     },
     {
       title: "Endurance Running",
@@ -141,8 +146,9 @@ const App: React.FC = () => {
       unlocked: false,
       unlockHow: "Boss 1",
       xpGain: 1,
-      speed: 3000, // 3 seconds
-      currentSpeed: 0
+      speed: 3000,
+      currentSpeed: 0,
+      trainingPointsRequired: 3
     },
   ]);
 
@@ -155,7 +161,9 @@ const App: React.FC = () => {
     trainingOverallXp: 0,
     trainingOverallLevel: 1,
     trainingMaxXp: 50,
-    trainingSpeed: 1
+    trainingSpeed: 1,
+    overallTrainingPoints: 5,
+    activeTrainingPoints: 0
   });
 
   const animationFrameRef = useRef<number>();
@@ -167,11 +175,26 @@ const App: React.FC = () => {
   const toggleTrainingActive = (index: number) => {
     setTraining(prevTraining => {
       const updatedTraining = [...prevTraining];
+      const item = updatedTraining[index];
+      const newActiveState = !item.active;
+
+      // Check if activating and if there are enough training points
+      if (newActiveState && character.activeTrainingPoints + item.trainingPointsRequired > character.overallTrainingPoints) {
+        // Not enough training points, return the unchanged training array
+        return prevTraining;
+      }
+
       updatedTraining[index] = {
-        ...updatedTraining[index],
-        active: !updatedTraining[index].active,
-        currentSpeed: 0 // Reset currentSpeed when toggling
+        ...item,
+        active: newActiveState,
+        currentSpeed: 0
       };
+
+      setCharacter(prevCharacter => ({
+        ...prevCharacter,
+        activeTrainingPoints: prevCharacter.activeTrainingPoints + (newActiveState ? item.trainingPointsRequired : -item.trainingPointsRequired)
+      }));
+
       return updatedTraining;
     });
   };
@@ -180,12 +203,10 @@ const App: React.FC = () => {
     setTraining(prevTraining => {
       return prevTraining.map(item => {
         if (item.active) {
-          const newCurrentSpeed = item.currentSpeed + 16.67; // Approximate milliseconds per frame at 60 FPS
+          const newCurrentSpeed = item.currentSpeed + 16.67;
           if (newCurrentSpeed >= item.speed) {
-            // Training cycle completed
             const newXp = item.xp + item.xpGain;
             if (newXp >= item.maxXp) {
-              // Level up
               return {
                 ...item,
                 currentLevel: item.currentLevel + 1,
@@ -194,7 +215,6 @@ const App: React.FC = () => {
                 currentSpeed: 0
               };
             } else {
-              // Just gain XP
               return {
                 ...item,
                 xp: newXp,
@@ -202,7 +222,6 @@ const App: React.FC = () => {
               };
             }
           } else {
-            // Update current speed
             return {
               ...item,
               currentSpeed: newCurrentSpeed
@@ -256,7 +275,13 @@ const App: React.FC = () => {
           toggleTrainingActive={toggleTrainingActive}
         />;
       case 'Train':
-        return <Train training={training} setTraining={setTraining} character={character} setCharacter={setCharacter} toggleTrainingActive={toggleTrainingActive} />;
+        return <Train
+          training={training}
+          setTraining={setTraining}
+          character={character}
+          setCharacter={setCharacter}
+          toggleTrainingActive={toggleTrainingActive}
+        />;
       case 'Play':
         return <Play />;
       case 'Compete':

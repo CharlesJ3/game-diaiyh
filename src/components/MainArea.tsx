@@ -1,13 +1,14 @@
 import React from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
+import ThreeScene from './ThreeScene';
 
 const MainAreaContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
   gap: 20px;
-  height: 100%;
-  width: 100%;
+  width: 100vw;
+  position: relative;
 `;
 
 const QuadrantContainer = styled.div`
@@ -24,116 +25,14 @@ const CharacterInfo = styled.div`
   }
 `;
 
-const TrainingList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-`;
-
-const pulse = keyframes`
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.02);
-  }
-  100% {
-    transform: scale(1);
-  }
-`;
-
-const TrainingItem = styled.div<{ $active: boolean, $progress: number }>`
-  position: relative;
-  background-color: #f0f0f0;
-  padding: 10px;
-  border-radius: 5px;
-  border: 2px solid ${props => props.$active ? '#4caf50' : 'transparent'};
-  transition: all 0.3s ease;
-  overflow: hidden;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #e0e0e0;
-    animation: ${pulse} 0.5s ease-in-out;
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: ${props => props.$progress}%;
-    background-color: rgba(76, 175, 80, 0.2);
-    transition: width 0.3s ease-in-out;
-    z-index: 1;
-  }
-`;
-
-const TrainingContent = styled.div`
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const TrainingInfo = styled.div`
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-`;
-
-const TrainingTitle = styled.h3`
-  margin: 0;
-  width: 150px;
-`;
-
-const TrainingStats = styled.div`
-  display: flex;
-  gap: 10px;
-`;
-
-const StatItem = styled.span`
-  font-size: 0.9em;
-`;
-
-const ToggleButton = styled.button`
-  padding: 5px 10px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  &:hover, &:focus {
-    background-color: #45a049;
-  }
-`;
-
-const TrainingItemContainer = styled.div`
-  margin-bottom: 15px;
-`;
-
-const SpeedProgressBarContainer = styled.div`
-  width: 100%;
-  height: 8px;
-  background-color: #e0e0e0;
-  border-radius: 4px;
-  margin-top: 8px;
-  overflow: hidden;
-`;
-
-const SpeedProgressBar = styled.div<{ $progress: number }>`
-  height: 100%;
-  width: ${props => props.$progress}%;
-  background-color: #2196f3;
+const ThreeSceneWrapper = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50vw;
+  height: 50vh;
+  z-index: 10;
 `;
 
 interface Character {
@@ -145,6 +44,8 @@ interface Character {
   trainingOverallXp: number;
   trainingOverallLevel: number;
   trainingMaxXp: number;
+  overallTrainingPoints: number;
+  activeTrainingPoints: number;
 }
 
 interface TrainingItem {
@@ -156,6 +57,7 @@ interface TrainingItem {
   speed: number;
   xpGain: number;
   currentSpeed: number;
+  trainingPointsRequired: number;
 }
 
 interface MainAreaProps {
@@ -164,6 +66,7 @@ interface MainAreaProps {
   setCharacter: React.Dispatch<React.SetStateAction<Character>>;
   setTraining: React.Dispatch<React.SetStateAction<TrainingItem[]>>;
   toggleTrainingActive: (index: number) => void;
+  children?: React.ReactNode;
 }
 
 const MainArea: React.FC<MainAreaProps> = ({
@@ -171,12 +74,9 @@ const MainArea: React.FC<MainAreaProps> = ({
   training,
   setCharacter,
   setTraining,
-  toggleTrainingActive
+  toggleTrainingActive,
+  children
 }) => {
-  const handleTrainingClick = (index: number) => {
-    toggleTrainingActive(index);
-  };
-
   return (
     <MainAreaContainer>
       <QuadrantContainer>
@@ -188,49 +88,21 @@ const MainArea: React.FC<MainAreaProps> = ({
           <p>Overall XP: {character.overallXp} / {character.overallMaxXp}</p>
           <p>Training Level: {character.trainingOverallLevel}</p>
           <p>Training XP: {character.trainingOverallXp} / {character.trainingMaxXp}</p>
+          <p>Training Points: {character.activeTrainingPoints} / {character.overallTrainingPoints}</p>
         </CharacterInfo>
       </QuadrantContainer>
       <QuadrantContainer>
-        <h2>Training</h2>
-        <TrainingList>
-          {training.map((item, index) => (
-            <TrainingItemContainer key={index}>
-              <TrainingItem
-                $active={item.active}
-                $progress={(item.xp / item.maxXp) * 100}
-                onClick={() => handleTrainingClick(index)}
-              >
-                <TrainingContent>
-                  <TrainingInfo>
-                    <TrainingTitle>{item.title}</TrainingTitle>
-                    <TrainingStats>
-                      <StatItem>Lvl: {item.currentLevel}</StatItem>
-                      <StatItem>XP: {item.xp}/{item.maxXp}</StatItem>
-                      <StatItem>Speed: {item.speed.toFixed(2)}s</StatItem>
-                      <StatItem>Gain: {item.xpGain}/tick</StatItem>
-                    </TrainingStats>
-                  </TrainingInfo>
-                  <ToggleButton onClick={(e) => {
-                    e.stopPropagation();
-                    toggleTrainingActive(index);
-                  }}>
-                    {item.active ? 'Deactivate' : 'Activate'}
-                  </ToggleButton>
-                </TrainingContent>
-              </TrainingItem>
-              <SpeedProgressBarContainer>
-                <SpeedProgressBar $progress={(item.currentSpeed / item.speed) * 100} />
-              </SpeedProgressBarContainer>
-            </TrainingItemContainer>
-          ))}
-        </TrainingList>
+        {/* More quick access stuff here, either Play or Compete */}
+      </QuadrantContainer>
+      <QuadrantContainer>
+        {children}
       </QuadrantContainer>
       <QuadrantContainer>
         {/* More quick access stuff here, either Play or Compete */}
       </QuadrantContainer>
-      <QuadrantContainer>
-        {/* More quick access stuff here, either Play or Compete */}
-      </QuadrantContainer>
+      <ThreeSceneWrapper>
+        <ThreeScene />
+      </ThreeSceneWrapper>
     </MainAreaContainer>
   );
 };
