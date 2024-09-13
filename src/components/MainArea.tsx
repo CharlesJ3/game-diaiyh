@@ -35,19 +35,10 @@ const pulse = keyframes`
     transform: scale(1);
   }
   50% {
-    transform: scale(1.05);
+    transform: scale(1.02);
   }
   100% {
     transform: scale(1);
-  }
-`;
-
-const fillAnimation = keyframes`
-  0% {
-    width: 0%;
-  }
-  100% {
-    width: 100%;
   }
 `;
 
@@ -75,22 +66,12 @@ const TrainingItem = styled.div<{ $active: boolean, $progress: number }>`
     position: absolute;
     top: 0;
     left: 0;
-    height: calc(100% - 15px);
+    height: 100%;
     width: ${props => props.$progress}%;
     background-color: rgba(76, 175, 80, 0.2);
     transition: width 0.3s ease-in-out;
     z-index: 1;
   }
-`;
-
-const SpeedProgressBar = styled.div<{ $duration: number }>`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 15px;
-  width: 0%;
-  background-color: rgba(33, 150, 243, 0.6);
-  animation: ${fillAnimation} ${props => props.$duration}s linear infinite;
 `;
 
 const TrainingContent = styled.div`
@@ -110,7 +91,7 @@ const TrainingInfo = styled.div`
 
 const TrainingTitle = styled.h3`
   margin: 0;
-  width: 150px; // Adjust as needed
+  width: 150px;
 `;
 
 const TrainingStats = styled.div`
@@ -136,6 +117,25 @@ const ToggleButton = styled.button`
   }
 `;
 
+const TrainingItemContainer = styled.div`
+  margin-bottom: 15px;
+`;
+
+const SpeedProgressBarContainer = styled.div`
+  width: 100%;
+  height: 8px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  margin-top: 8px;
+  overflow: hidden;
+`;
+
+const SpeedProgressBar = styled.div<{ $progress: number }>`
+  height: 100%;
+  width: ${props => props.$progress}%;
+  background-color: #2196f3;
+`;
+
 interface Character {
   name: string;
   title: string;
@@ -145,7 +145,6 @@ interface Character {
   trainingOverallXp: number;
   trainingOverallLevel: number;
   trainingMaxXp: number;
-  trainingSpeed: number;
 }
 
 interface TrainingItem {
@@ -154,19 +153,9 @@ interface TrainingItem {
   xp: number;
   maxXp: number;
   active: boolean;
+  speed: number;
   xpGain: number;
-}
-
-interface Character {
-  name: string;
-  title: string;
-  overallXp: number;
-  overallLevel: number;
-  overallMaxXp: number;
-  trainingOverallXp: number;
-  trainingOverallLevel: number;
-  trainingMaxXp: number;
-  trainingSpeed: number;
+  currentSpeed: number;
 }
 
 interface MainAreaProps {
@@ -196,48 +185,51 @@ const MainArea: React.FC<MainAreaProps> = ({
           <p>Name: {character.name}</p>
           <p>Title: {character.title}</p>
           <p>Overall Level: {character.overallLevel}</p>
-          <p>Overall XP: {Math.floor(character.overallXp)} / {character.overallMaxXp}</p>
+          <p>Overall XP: {character.overallXp} / {character.overallMaxXp}</p>
           <p>Training Level: {character.trainingOverallLevel}</p>
-          <p>Training XP: {Math.floor(character.trainingOverallXp)} / {character.trainingMaxXp}</p>
-          <p>Training Speed: {character.trainingSpeed}s</p>
+          <p>Training XP: {character.trainingOverallXp} / {character.trainingMaxXp}</p>
         </CharacterInfo>
       </QuadrantContainer>
       <QuadrantContainer>
         <h2>Training</h2>
         <TrainingList>
           {training.map((item, index) => (
-            <TrainingItem
-              key={index}
-              $active={item.active}
-              $progress={(item.xp / item.maxXp) * 100}
-              onClick={() => handleTrainingClick(index)}
-            >
-              <TrainingContent>
-                <TrainingInfo>
-                  <TrainingTitle>{item.title}</TrainingTitle>
-                  <TrainingStats>
-                    <StatItem>Lvl: {item.currentLevel}</StatItem>
-                    <StatItem>XP: {Math.floor(item.xp)}/{item.maxXp}</StatItem>
-                    <StatItem>Gain: {item.xpGain}/tick</StatItem>
-                  </TrainingStats>
-                </TrainingInfo>
-                <ToggleButton onClick={(e) => {
-                  e.stopPropagation();
-                  toggleTrainingActive(index);
-                }}>
-                  {item.active ? 'Deactivate' : 'Activate'}
-                </ToggleButton>
-              </TrainingContent>
-              {item.active && <SpeedProgressBar $duration={character.trainingSpeed} />}
-            </TrainingItem>
+            <TrainingItemContainer key={index}>
+              <TrainingItem
+                $active={item.active}
+                $progress={(item.xp / item.maxXp) * 100}
+                onClick={() => handleTrainingClick(index)}
+              >
+                <TrainingContent>
+                  <TrainingInfo>
+                    <TrainingTitle>{item.title}</TrainingTitle>
+                    <TrainingStats>
+                      <StatItem>Lvl: {item.currentLevel}</StatItem>
+                      <StatItem>XP: {item.xp}/{item.maxXp}</StatItem>
+                      <StatItem>Speed: {item.speed.toFixed(2)}s</StatItem>
+                      <StatItem>Gain: {item.xpGain}/tick</StatItem>
+                    </TrainingStats>
+                  </TrainingInfo>
+                  <ToggleButton onClick={(e) => {
+                    e.stopPropagation();
+                    toggleTrainingActive(index);
+                  }}>
+                    {item.active ? 'Deactivate' : 'Activate'}
+                  </ToggleButton>
+                </TrainingContent>
+              </TrainingItem>
+              <SpeedProgressBarContainer>
+                <SpeedProgressBar $progress={(item.currentSpeed / item.speed) * 100} />
+              </SpeedProgressBarContainer>
+            </TrainingItemContainer>
           ))}
         </TrainingList>
       </QuadrantContainer>
       <QuadrantContainer>
-        {/* Reserved for future content */}
+        {/* More quick access stuff here, either Play or Compete */}
       </QuadrantContainer>
       <QuadrantContainer>
-        {/* Reserved for future content */}
+        {/* More quick access stuff here, either Play or Compete */}
       </QuadrantContainer>
     </MainAreaContainer>
   );

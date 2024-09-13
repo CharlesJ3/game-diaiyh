@@ -1,6 +1,4 @@
-/// <reference types="node" />
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { createGlobalStyle } from 'styled-components';
 import Header from './components/Header';
@@ -72,6 +70,8 @@ interface TrainingItem {
   unlocked: boolean;
   unlockHow: string;
   xpGain: number;
+  speed: number; // in milliseconds
+  currentSpeed: number;
 }
 
 interface Character {
@@ -112,7 +112,9 @@ const App: React.FC = () => {
       active: false,
       unlocked: true,
       unlockHow: "Boss 1",
-      xpGain: 1
+      xpGain: 1,
+      speed: 1000, // 1 second
+      currentSpeed: 0
     },
     {
       title: "Strength Training",
@@ -124,7 +126,9 @@ const App: React.FC = () => {
       active: false,
       unlocked: true,
       unlockHow: "Boss 1",
-      xpGain: 1
+      xpGain: 1,
+      speed: 2000, // 2 seconds
+      currentSpeed: 0
     },
     {
       title: "Endurance Running",
@@ -136,7 +140,9 @@ const App: React.FC = () => {
       active: false,
       unlocked: false,
       unlockHow: "Boss 1",
-      xpGain: 1
+      xpGain: 1,
+      speed: 3000, // 3 seconds
+      currentSpeed: 0
     },
   ]);
 
@@ -152,6 +158,8 @@ const App: React.FC = () => {
     trainingSpeed: 1
   });
 
+  const animationFrameRef = useRef<number>();
+
   const handleMenuItemClick = (item: string) => {
     setActiveComponent(item);
   };
@@ -161,59 +169,92 @@ const App: React.FC = () => {
       const updatedTraining = [...prevTraining];
       updatedTraining[index] = {
         ...updatedTraining[index],
-        active: !updatedTraining[index].active
+        active: !updatedTraining[index].active,
+        currentSpeed: 0 // Reset currentSpeed when toggling
       };
       return updatedTraining;
     });
   };
 
-  useEffect(() => {
-    const trainingInterval = setInterval(() => {
-      setTraining(prevTraining => {
-        return prevTraining.map(item => {
-          if (item.active) {
+  const updateGame = (timestamp: number) => {
+    setTraining(prevTraining => {
+      return prevTraining.map(item => {
+        if (item.active) {
+          const newCurrentSpeed = item.currentSpeed + 16.67; // Approximate milliseconds per frame at 60 FPS
+          if (newCurrentSpeed >= item.speed) {
+            // Training cycle completed
             const newXp = item.xp + item.xpGain;
             if (newXp >= item.maxXp) {
+              // Level up
               return {
                 ...item,
                 currentLevel: item.currentLevel + 1,
                 xp: newXp - item.maxXp,
-                maxXp: Math.floor(item.maxXp * 1.1)
+                maxXp: Math.floor(item.maxXp * 1.1),
+                currentSpeed: 0
               };
             } else {
-              return { ...item, xp: newXp };
+              // Just gain XP
+              return {
+                ...item,
+                xp: newXp,
+                currentSpeed: 0
+              };
             }
+          } else {
+            // Update current speed
+            return {
+              ...item,
+              currentSpeed: newCurrentSpeed
+            };
           }
-          return item;
-        });
-      });
-
-      setCharacter(prevCharacter => {
-        const activeTrainings = training.filter(item => item.active);
-        const totalXpGain = activeTrainings.reduce((sum, item) => sum + item.xpGain, 0);
-        const newTrainingXp = prevCharacter.trainingOverallXp + totalXpGain;
-
-        if (newTrainingXp >= prevCharacter.trainingMaxXp) {
-          return {
-            ...prevCharacter,
-            trainingOverallLevel: prevCharacter.trainingOverallLevel + 1,
-            trainingOverallXp: newTrainingXp - prevCharacter.trainingMaxXp,
-            trainingMaxXp: Math.floor(prevCharacter.trainingMaxXp * 1.1)
-          };
-        } else {
-          return {
-            ...prevCharacter,
-            trainingOverallXp: newTrainingXp
-          };
         }
+        return item;
       });
-    }, character.trainingSpeed * 1000);
+    });
 
-    return () => clearInterval(trainingInterval);
-  }, [training, character.trainingSpeed]);
+    setCharacter(prevCharacter => {
+      const activeTrainings = training.filter(item => item.active && item.currentSpeed === 0);
+      const totalXpGain = activeTrainings.reduce((sum, item) => sum + item.xpGain, 0);
+      const newTrainingXp = prevCharacter.trainingOverallXp + totalXpGain;
+
+      if (newTrainingXp >= prevCharacter.trainingMaxXp) {
+        return {
+          ...prevCharacter,
+          trainingOverallLevel: prevCharacter.trainingOverallLevel + 1,
+          trainingOverallXp: newTrainingXp - prevCharacter.trainingMaxXp,
+          trainingMaxXp: Math.floor(prevCharacter.trainingMaxXp * 1.1)
+        };
+      } else {
+        return {
+          ...prevCharacter,
+          trainingOverallXp: newTrainingXp
+        };
+      }
+    });
+
+    animationFrameRef.current = requestAnimationFrame(updateGame);
+  };
+
+  useEffect(() => {
+    animationFrameRef.current = requestAnimationFrame(updateGame);
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, []);
 
   const renderActiveComponent = () => {
     switch (activeComponent) {
+      case 'Overview':
+        return <MainArea
+          character={character}
+          training={training}
+          setCharacter={setCharacter}
+          setTraining={setTraining}
+          toggleTrainingActive={toggleTrainingActive}
+        />;
       case 'Train':
         return <Train training={training} setTraining={setTraining} character={character} setCharacter={setCharacter} toggleTrainingActive={toggleTrainingActive} />;
       case 'Play':

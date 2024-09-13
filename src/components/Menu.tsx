@@ -42,7 +42,7 @@ interface MenuProps {
 }
 
 const Menu: React.FC<MenuProps> = ({ onMenuItemClick }) => {
-  const menuItems = ['Train', 'Play', 'Compete', 'Prestige', 'Settings', 'Help/Tutorial'];
+  const menuItems = ['Overview', 'Train', 'Play', 'Compete', 'Prestige', 'Settings', 'Help/Tutorial'];
 
   return (
     <MenuContainer>
