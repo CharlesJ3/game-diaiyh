@@ -87,6 +87,19 @@ interface Character {
   trainingSpeed: number;
   overallTrainingPoints: number;
   activeTrainingPoints: number;
+  trainingTalentPoints: number;
+  overallTrainingTalentPoints: number;
+}
+
+interface TrainingTalent {
+  name: string;
+  talentSkillCost: number;
+  description: string;
+  currentLevel: number;
+  maxLevel: number;
+  perLevelMultiplier: number;
+  requiredTalentSkills: string[];
+  active: boolean;
 }
 
 const App: React.FC = () => {
@@ -163,8 +176,43 @@ const App: React.FC = () => {
     trainingMaxXp: 50,
     trainingSpeed: 1,
     overallTrainingPoints: 2,
-    activeTrainingPoints: 0
+    activeTrainingPoints: 0,
+    trainingTalentPoints: 5,
+    overallTrainingTalentPoints: 5
   });
+
+  const [trainingTalents, setTrainingTalents] = useState<TrainingTalent[]>([
+    {
+      name: "Fast Learner",
+      talentSkillCost: 1,
+      description: "Increases XP gain from all training activities",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.1,
+      requiredTalentSkills: [],
+      active: false
+    },
+    {
+      name: "Endurance",
+      talentSkillCost: 2,
+      description: "Reduces training cooldown time",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.05,
+      requiredTalentSkills: ["Fast Learner"],
+      active: false
+    },
+    {
+      name: "Multi-tasking",
+      talentSkillCost: 3,
+      description: "Increases the number of simultaneous training activities",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 1,
+      requiredTalentSkills: ["Fast Learner", "Endurance"],
+      active: false
+    }
+  ]);
 
   const animationFrameRef = useRef<number>();
 
@@ -186,7 +234,6 @@ const App: React.FC = () => {
       }
 
       if (newActiveTrainingPoints <= character.overallTrainingPoints) {
-
         updatedTraining[index] = {
           ...item,
           active: newActiveState
@@ -203,6 +250,14 @@ const App: React.FC = () => {
     });
   };
 
+  const addTrainingTalentPoints = () => {
+    setCharacter(prevCharacter => ({
+      ...prevCharacter,
+      trainingTalentPoints: prevCharacter.trainingTalentPoints + 1,
+      overallTrainingTalentPoints: prevCharacter.overallTrainingTalentPoints + 1
+    }));
+  };
+
   const updateGame = (timestamp: number) => {
     setTraining(prevTraining => {
       return prevTraining.map(item => {
@@ -211,6 +266,8 @@ const App: React.FC = () => {
           if (newCurrentSpeed >= item.speed) {
             const newXp = item.xp + item.xpGain;
             if (newXp >= item.maxXp) {
+              // Call addTrainingTalentPoints when a training skill levels up
+              addTrainingTalentPoints();
               return {
                 ...item,
                 currentLevel: item.currentLevel + 1,
@@ -242,6 +299,8 @@ const App: React.FC = () => {
       const newTrainingXp = prevCharacter.trainingOverallXp + totalXpGain;
 
       if (newTrainingXp >= prevCharacter.trainingMaxXp) {
+        // Call addTrainingTalentPoints when overall training level increases
+        addTrainingTalentPoints();
         return {
           ...prevCharacter,
           trainingOverallLevel: prevCharacter.trainingOverallLevel + 1,
@@ -282,6 +341,7 @@ const App: React.FC = () => {
         return <Train
           training={training}
           setTraining={setTraining}
+          trainingTalents={trainingTalents}
           character={character}
           setCharacter={setCharacter}
           toggleTrainingActive={toggleTrainingActive}

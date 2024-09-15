@@ -1,5 +1,6 @@
 import React from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
+import TrainingSkills from './TrainingSkills';
 
 const TrainingContainer = styled.div`
   display: flex;
@@ -15,11 +16,9 @@ const TrainingContainer = styled.div`
 const LeftSection = styled.div`
   flex: 1;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
   border-right: 1px solid #ccc;
-  font-size: 24px;
-  color: #666;
+  overflow-y: auto;
 `;
 
 const RightSection = styled.div`
@@ -38,18 +37,6 @@ const TrainingListSection = styled.div`
   max-height: 100%;
 `;
 
-const pulse = keyframes`
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.02);
-  }
-  100% {
-    transform: scale(1);
-  }
-`;
-
 const TrainingItem = styled.div<{ $active: boolean, $progress: number, $canActivate: boolean }>`
   position: relative;
   background-color: ${props => props.$canActivate ? 'rgba(76, 175, 80, 0.1)' : 'rgba(244, 67, 54, 0.1)'};
@@ -64,7 +51,6 @@ const TrainingItem = styled.div<{ $active: boolean, $progress: number, $canActiv
 
   &:hover {
     background-color: ${props => props.$canActivate ? 'rgba(76, 175, 80, 0.2)' : 'rgba(244, 67, 54, 0.2)'};
-    animation: ${pulse} 0.5s ease-in-out;
   }
 
   &:active {
@@ -173,6 +159,19 @@ interface Character {
   trainingMaxXp: number;
   overallTrainingPoints: number;
   activeTrainingPoints: number;
+  trainingTalentPoints: number;
+  overallTrainingTalentPoints: number;
+}
+
+interface TrainingTalent {
+  name: string;
+  talentSkillCost: number;
+  description: string;
+  currentLevel: number;
+  maxLevel: number;
+  perLevelMultiplier: number;
+  requiredTalentSkills: string[];
+  active: boolean;
 }
 
 type TrainProps = {
@@ -181,9 +180,19 @@ type TrainProps = {
   character: Character;
   setCharacter: React.Dispatch<React.SetStateAction<Character>>;
   toggleTrainingActive: (index: number) => void;
+  trainingTalents: TrainingTalent[];
+  setTrainingTalents: React.Dispatch<React.SetStateAction<TrainingTalent[]>>;
 };
 
-const Train: React.FC<TrainProps> = ({ training, setTraining, character, setCharacter, toggleTrainingActive }) => {
+const Train: React.FC<TrainProps> = ({
+  training,
+  setTraining,
+  character,
+  setCharacter,
+  toggleTrainingActive,
+  trainingTalents,
+  setTrainingTalents
+}) => {
   const canActivateTraining = (item: TrainingItem) => {
     if (item.active) return true;
     return character.overallTrainingPoints - character.activeTrainingPoints >= item.trainingPointsRequired;
@@ -191,7 +200,14 @@ const Train: React.FC<TrainProps> = ({ training, setTraining, character, setChar
 
   return (
     <TrainingContainer>
-      <LeftSection>Progress Section</LeftSection>
+      <LeftSection>
+        <TrainingSkills
+          trainingTalents={trainingTalents}
+          setTrainingTalents={setTrainingTalents}
+          character={character}
+          setCharacter={setCharacter}
+        />
+      </LeftSection>
       <RightSection>
         <TrainingListSection>
           {training.map((item, index) => (

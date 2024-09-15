@@ -89,6 +89,7 @@ const MainArea: React.FC<MainAreaProps> = ({
           <p>Training Level: {character.trainingOverallLevel}</p>
           <p>Training XP: {character.trainingOverallXp} / {character.trainingMaxXp}</p>
           <p>Training Points: {character.activeTrainingPoints} / {character.overallTrainingPoints}</p>
+          <p>Training Talent Points: {character.overallTrainingTalentPoints}</p>
         </CharacterInfo>
       </QuadrantContainer>
       <QuadrantContainer>
