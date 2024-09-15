@@ -162,7 +162,7 @@ const App: React.FC = () => {
     trainingOverallLevel: 1,
     trainingMaxXp: 50,
     trainingSpeed: 1,
-    overallTrainingPoints: 5,
+    overallTrainingPoints: 2,
     activeTrainingPoints: 0
   });
 
@@ -177,25 +177,29 @@ const App: React.FC = () => {
       const updatedTraining = [...prevTraining];
       const item = updatedTraining[index];
       const newActiveState = !item.active;
-
+      let newActiveTrainingPoints = character.activeTrainingPoints;
       // Check if activating and if there are enough training points
-      if (newActiveState && character.activeTrainingPoints + item.trainingPointsRequired > character.overallTrainingPoints) {
-        // Not enough training points, return the unchanged training array
-        return prevTraining;
+      if (newActiveState) {
+        newActiveTrainingPoints += item.trainingPointsRequired;
+      } else {
+        newActiveTrainingPoints -= item.trainingPointsRequired;
       }
 
-      updatedTraining[index] = {
-        ...item,
-        active: newActiveState,
-        currentSpeed: 0
-      };
+      if (newActiveTrainingPoints <= character.overallTrainingPoints) {
 
-      setCharacter(prevCharacter => ({
-        ...prevCharacter,
-        activeTrainingPoints: prevCharacter.activeTrainingPoints + (newActiveState ? item.trainingPointsRequired : -item.trainingPointsRequired)
-      }));
+        updatedTraining[index] = {
+          ...item,
+          active: newActiveState
+        };
+        setCharacter(prevCharacter => ({
+          ...prevCharacter,
+          activeTrainingPoints: newActiveTrainingPoints
+        }));
 
-      return updatedTraining;
+        return updatedTraining;
+      }
+
+      return prevTraining; // Return the original state if we can't activate
     });
   };
 
@@ -268,10 +272,10 @@ const App: React.FC = () => {
     switch (activeComponent) {
       case 'Overview':
         return <MainArea
-          character={character}
           training={training}
-          setCharacter={setCharacter}
           setTraining={setTraining}
+          character={character}
+          setCharacter={setCharacter}
           toggleTrainingActive={toggleTrainingActive}
         />;
       case 'Train':

@@ -186,7 +186,7 @@ type TrainProps = {
 const Train: React.FC<TrainProps> = ({ training, setTraining, character, setCharacter, toggleTrainingActive }) => {
   const canActivateTraining = (item: TrainingItem) => {
     if (item.active) return true;
-    return character.activeTrainingPoints + item.trainingPointsRequired <= character.overallTrainingPoints;
+    return character.overallTrainingPoints - character.activeTrainingPoints >= item.trainingPointsRequired;
   };
 
   return (
