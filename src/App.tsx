@@ -10,6 +10,7 @@ import Prestige from './components/Prestige';
 import Settings from './components/Settings';
 import HelpTutorial from './components/HelpTutorial';
 import MainArea from './components/MainArea';
+import Notifications from './components/Notifications';
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -102,6 +103,15 @@ interface TrainingTalent {
   active: boolean;
 }
 
+interface NotificationItem {
+  id: number;
+  message: string;
+  type: 'tutorial' | 'normal' | 'important' | 'logging';
+  active: boolean;
+  notificationStartTimer: number;
+  notificationEndTimer: number;
+}
+
 const App: React.FC = () => {
   const [currencies, setCurrencies] = useState<Currencies>({
     time: [{ amount: 0, name: "Time", active: true }],
@@ -124,12 +134,12 @@ const App: React.FC = () => {
       category: { school: "elementary", work: "intern" },
       xp: 0,
       currentLevel: 1,
-      maxXp: 10,
+      maxXp: 1,
       active: false,
       unlocked: true,
       unlockHow: "Boss 1",
       xpGain: 1,
-      speed: 1000,
+      speed: 100,
       currentSpeed: 0,
       trainingPointsRequired: 1
     },
@@ -214,6 +224,11 @@ const App: React.FC = () => {
     }
   ]);
 
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [nextNotificationId, setNextNotificationId] = useState(0);
+  const [notificationLog, setNotificationLog] = useState<NotificationItem[]>([]);
+  const lastNotificationRef = useRef<{ message: string, timestamp: number } | null>(null);
+
   const animationFrameRef = useRef<number>();
 
   const handleMenuItemClick = (item: string) => {
@@ -258,6 +273,59 @@ const App: React.FC = () => {
     }));
   };
 
+  const addNotification = (message: string, type: 'tutorial' | 'normal' | 'important' | 'logging' = 'normal') => {
+    const now = Date.now();
+
+    // Check if this is a duplicate notification within the last second
+    if (lastNotificationRef.current &&
+      lastNotificationRef.current.message === message &&
+      now - lastNotificationRef.current.timestamp < 1000) {
+      return; // Don't add duplicate notification
+    }
+
+    const newNotification: NotificationItem = {
+      id: nextNotificationId,
+      message,
+      type,
+      active: true,
+      notificationStartTimer: 0,
+      notificationEndTimer: 5000
+    };
+
+    setNextNotificationId(prevId => prevId + 1);
+
+    setNotifications(prevNotifications => {
+      let updatedNotifications: NotificationItem[];
+
+      if (prevNotifications.length < 6) {
+        updatedNotifications = [...prevNotifications, newNotification];
+      } else {
+        updatedNotifications = [...prevNotifications.slice(1), newNotification];
+      }
+
+      return updatedNotifications;
+    });
+
+    setNotificationLog(prevLog => {
+      const updatedLog = [...prevLog, newNotification].slice(-100);
+      console.log('Updated Notification Log:', updatedLog);
+      return updatedLog;
+    });
+
+    // Update the last notification reference
+    lastNotificationRef.current = { message, timestamp: now };
+  };
+
+  const removeNotification = (id: number) => {
+    setNotifications(prevNotifications =>
+      prevNotifications.filter(notification => notification.id !== id)
+    );
+  };
+
+  const handleTrainingLevelUp = (trainingName: string, newLevel: number) => {
+    addNotification(`${trainingName} increased to level ${newLevel}`, 'normal');
+  };
+
   const updateGame = (timestamp: number) => {
     setTraining(prevTraining => {
       return prevTraining.map(item => {
@@ -266,8 +334,8 @@ const App: React.FC = () => {
           if (newCurrentSpeed >= item.speed) {
             const newXp = item.xp + item.xpGain;
             if (newXp >= item.maxXp) {
-              // Call addTrainingTalentPoints when a training skill levels up
               addTrainingTalentPoints();
+              handleTrainingLevelUp(item.title, item.currentLevel + 1);
               return {
                 ...item,
                 currentLevel: item.currentLevel + 1,
@@ -299,8 +367,8 @@ const App: React.FC = () => {
       const newTrainingXp = prevCharacter.trainingOverallXp + totalXpGain;
 
       if (newTrainingXp >= prevCharacter.trainingMaxXp) {
-        // Call addTrainingTalentPoints when overall training level increases
         addTrainingTalentPoints();
+        addNotification(`Overall training level increased to ${prevCharacter.trainingOverallLevel + 1}`, 'important');
         return {
           ...prevCharacter,
           trainingOverallLevel: prevCharacter.trainingOverallLevel + 1,
@@ -314,6 +382,19 @@ const App: React.FC = () => {
         };
       }
     });
+
+    setNotifications(prevNotifications =>
+      prevNotifications.map(notification => {
+        if (notification.active) {
+          const newStartTimer = notification.notificationStartTimer + 16.67; // Assuming 60 FPS
+          if (newStartTimer >= notification.notificationEndTimer) {
+            return { ...notification, active: false };
+          }
+          return { ...notification, notificationStartTimer: newStartTimer };
+        }
+        return notification;
+      }).filter(notification => notification.active)
+    );
 
     animationFrameRef.current = requestAnimationFrame(updateGame);
   };
@@ -345,6 +426,7 @@ const App: React.FC = () => {
           character={character}
           setCharacter={setCharacter}
           toggleTrainingActive={toggleTrainingActive}
+          setTrainingTalents={setTrainingTalents}
         />;
       case 'Play':
         return <Play />;
@@ -380,6 +462,7 @@ const App: React.FC = () => {
         <MenuSection>
           <Menu onMenuItemClick={handleMenuItemClick} />
         </MenuSection>
+        <Notifications notifications={notifications} removeNotification={removeNotification} />
       </AppContainer>
     </>
   );

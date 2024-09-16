@@ -1,15 +1,20 @@
 import React from 'react';
 import styled from 'styled-components';
+import backgroundImage from '../assets/training-image-skill-background.png'
 
 const TrainingSkillsContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
   padding: 20px;
+  background-image: url(${backgroundImage});
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
 `;
 
 const SkillCard = styled.div<{ $isActive: boolean }>`
-  background-color: ${props => props.$isActive ? '#e0f7fa' : '#f5f5f5'};
+  background-color: ${props => props.$isActive ? 'rgba(224, 247, 250, 0.9)' : 'rgba(245, 245, 245, 0.9)'};
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 15px;
@@ -78,9 +83,21 @@ interface TrainingTalent {
 }
 
 interface Character {
+  name: string;
+  title: string;
+  overallXp: number;
+  overallLevel: number;
+  overallMaxXp: number;
+  trainingOverallXp: number;
+  trainingOverallLevel: number;
+  trainingMaxXp: number;
+  trainingSpeed: number;
+  overallTrainingPoints: number;
+  activeTrainingPoints: number;
   trainingTalentPoints: number;
-  // ... other character properties
+  overallTrainingTalentPoints: number;
 }
+
 
 interface TrainingSkillsProps {
   trainingTalents: TrainingTalent[];
