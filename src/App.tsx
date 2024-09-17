@@ -93,14 +93,16 @@ interface Character {
 }
 
 interface TrainingTalent {
+  id: number;
   name: string;
   talentSkillCost: number;
   description: string;
   currentLevel: number;
   maxLevel: number;
   perLevelMultiplier: number;
-  requiredTalentSkills: string[];
+  requiredTalentSkills: number[];
   active: boolean;
+  type: ('Strength' | 'Intellect' | 'Speed')[];
 }
 
 interface NotificationItem {
@@ -175,6 +177,7 @@ const App: React.FC = () => {
     },
   ]);
 
+
   const [character, setCharacter] = useState<Character>({
     name: "Player",
     title: "Novice",
@@ -191,8 +194,10 @@ const App: React.FC = () => {
     overallTrainingTalentPoints: 5
   });
 
+  // These are all temporary, I'm going to add in real training later but for now I need to test the UI
   const [trainingTalents, setTrainingTalents] = useState<TrainingTalent[]>([
     {
+      id: 0,
       name: "Fast Learner",
       talentSkillCost: 1,
       description: "Increases XP gain from all training activities",
@@ -200,27 +205,308 @@ const App: React.FC = () => {
       maxLevel: 5,
       perLevelMultiplier: 0.1,
       requiredTalentSkills: [],
-      active: false
+      active: false,
+      type: ['Speed', 'Intellect']
     },
     {
+      id: 1,
       name: "Endurance",
       talentSkillCost: 2,
       description: "Reduces training cooldown time",
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 0.05,
-      requiredTalentSkills: ["Fast Learner"],
-      active: false
+      requiredTalentSkills: [0],
+      active: false,
+      type: ['Strength']
     },
     {
+      id: 2,
       name: "Multi-tasking",
       talentSkillCost: 3,
       description: "Increases the number of simultaneous training activities",
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 1,
-      requiredTalentSkills: ["Fast Learner", "Endurance"],
-      active: false
+      requiredTalentSkills: [0, 1],
+      active: false,
+      type: ['Intellect', 'Speed']
+    },
+    {
+      id: 3,
+      name: "Power Lifting",
+      talentSkillCost: 2,
+      description: "Increases strength gain from all activities",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.15,
+      requiredTalentSkills: [],
+      active: false,
+      type: ['Speed']
+    },
+    {
+      id: 4,
+      name: "Mental Fortitude",
+      talentSkillCost: 2,
+      description: "Increases intellect gain from all activities",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.15,
+      requiredTalentSkills: [2],
+      active: false,
+      type: ['Intellect']
+    },
+    {
+      id: 5,
+      name: "Quick Reflexes",
+      talentSkillCost: 2,
+      description: "Improves reaction time in all activities",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.1,
+      requiredTalentSkills: [0],
+      active: false,
+      type: ['Speed', 'Intellect']
+    },
+    {
+      id: 6,
+      name: "Strategic Planning",
+      talentSkillCost: 3,
+      description: "Enhances efficiency of all training methods",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.2,
+      requiredTalentSkills: [2, 4],
+      active: false,
+      type: ['Strength']
+    },
+    {
+      id: 7,
+      name: "Agility Training",
+      talentSkillCost: 2,
+      description: "Improves speed gain from all activities",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.15,
+      requiredTalentSkills: [5],
+      active: false,
+      type: ['Speed', 'Intellect']
+    },
+    {
+      id: 8,
+      name: "Problem Solving",
+      talentSkillCost: 3,
+      description: "Enhances problem-solving abilities",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.2,
+      requiredTalentSkills: [4, 6],
+      active: false,
+      type: ['Intellect', 'Strength']
+    },
+    {
+      id: 9,
+      name: "Creativity",
+      talentSkillCost: 2,
+      description: "Boosts creativity and innovation",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.15,
+      requiredTalentSkills: [7],
+      active: false,
+      type: ['Intellect']
+    },
+    {
+      id: 10,
+      name: "Leadership",
+      talentSkillCost: 3,
+      description: "Develops leadership skills",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.2,
+      requiredTalentSkills: [8, 9],
+      active: false,
+      type: ['Strength']
+    },
+    {
+      id: 11,
+      name: "Communication",
+      talentSkillCost: 2,
+      description: "Improves communication skills",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.15,
+      requiredTalentSkills: [10],
+      active: false,
+      type: ['Intellect']
+    },
+    {
+      id: 12,
+      name: "Time Management",
+      talentSkillCost: 3,
+      description: "Enhances time management abilities",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.2,
+      requiredTalentSkills: [11, 6],
+      active: false,
+      type: ['Speed']
+    },
+    {
+      id: 13,
+      name: "Critical Thinking",
+      talentSkillCost: 2,
+      description: "Improves critical thinking skills",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.15,
+      requiredTalentSkills: [12],
+      active: false,
+      type: ['Intellect', 'Strength']
+    },
+    {
+      id: 14,
+      name: "Decision Making",
+      talentSkillCost: 3,
+      description: "Enhances decision-making abilities",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.2,
+      requiredTalentSkills: [13, 9],
+      active: false,
+      type: ['Strength', 'Intellect']
+    },
+    {
+      id: 15,
+      name: "Stress Management",
+      talentSkillCost: 2,
+      description: "Improves stress management skills",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.15,
+      requiredTalentSkills: [14],
+      active: false,
+      type: ['Speed', 'Strength']
+    },
+    {
+      id: 16,
+      name: "Teamwork",
+      talentSkillCost: 3,
+      description: "Develops teamwork skills",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.2,
+      requiredTalentSkills: [15, 10],
+      active: false,
+      type: ['Strength', 'Speed']
+    },
+    {
+      id: 17,
+      name: "Adaptability",
+      talentSkillCost: 2,
+      description: "Improves adaptability to new situations",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.15,
+      requiredTalentSkills: [16],
+      active: false,
+      type: ['Speed', 'Intellect']
+    },
+    {
+      id: 18,
+      name: "Emotional Intelligence",
+      talentSkillCost: 3,
+      description: "Develops emotional intelligence",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.2,
+      requiredTalentSkills: [17, 11],
+      active: false,
+      type: ['Strength']
+    },
+    {
+      id: 19,
+      name: "Negotiation",
+      talentSkillCost: 2,
+      description: "Improves negotiation skills",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.15,
+      requiredTalentSkills: [18],
+      active: false,
+      type: ['Intellect', 'Speed']
+    },
+    {
+      id: 20,
+      name: "Networking",
+      talentSkillCost: 3,
+      description: "Develops networking skills",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.2,
+      requiredTalentSkills: [19, 12],
+      active: false,
+      type: ['Speed']
+    },
+    {
+      id: 21,
+      name: "Problem Solving",
+      talentSkillCost: 2,
+      description: "Improves problem-solving abilities",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.15,
+      requiredTalentSkills: [20],
+      active: false,
+      type: ['Intellect', 'Strength']
+    },
+    {
+      id: 22,
+      name: "Creativity",
+      talentSkillCost: 3,
+      description: "Boosts creativity and innovation",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.2,
+      requiredTalentSkills: [21, 13],
+      active: false,
+      type: ['Intellect']
+    },
+    {
+      id: 23,
+      name: "Leadership",
+      talentSkillCost: 2,
+      description: "Develops leadership skills",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.15,
+      requiredTalentSkills: [22],
+      active: false,
+      type: ['Strength', 'Intellect']
+    },
+    {
+      id: 24,
+      name: "Communication",
+      talentSkillCost: 3,
+      description: "Improves communication skills",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.2,
+      requiredTalentSkills: [23, 14],
+      active: false,
+      type: ['Intellect', 'Speed']
+    },
+    {
+      id: 25,
+      name: "Time Management",
+      talentSkillCost: 2,
+      description: "Enhances time management abilities",
+      currentLevel: 0,
+      maxLevel: 5,
+      perLevelMultiplier: 0.15,
+      requiredTalentSkills: [24],
+      active: false,
+      type: ['Speed', 'Strength']
     }
   ]);
 
@@ -308,7 +594,6 @@ const App: React.FC = () => {
 
     setNotificationLog(prevLog => {
       const updatedLog = [...prevLog, newNotification].slice(-100);
-      console.log('Updated Notification Log:', updatedLog);
       return updatedLog;
     });
 
@@ -458,6 +743,7 @@ const App: React.FC = () => {
         </HeaderSection>
         <MainSection>
           {renderActiveComponent()}
+          {console.log(trainingTalents)}
         </MainSection>
         <MenuSection>
           <Menu onMenuItemClick={handleMenuItemClick} />
