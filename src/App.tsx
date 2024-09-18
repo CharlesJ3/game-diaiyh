@@ -206,7 +206,7 @@ const App: React.FC = () => {
       perLevelMultiplier: 0.1,
       requiredTalentSkills: [],
       active: false,
-      type: ['Speed', 'Intellect']
+      type: ['Strength']
     },
     {
       id: 1,
@@ -228,9 +228,9 @@ const App: React.FC = () => {
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 1,
-      requiredTalentSkills: [0, 1],
+      requiredTalentSkills: [1],
       active: false,
-      type: ['Intellect', 'Speed']
+      type: ['Strength']
     },
     {
       id: 3,
@@ -240,9 +240,9 @@ const App: React.FC = () => {
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 0.15,
-      requiredTalentSkills: [],
+      requiredTalentSkills: [2],
       active: false,
-      type: ['Speed']
+      type: ['Strength']
     },
     {
       id: 4,
@@ -252,9 +252,9 @@ const App: React.FC = () => {
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 0.15,
-      requiredTalentSkills: [2],
+      requiredTalentSkills: [3],
       active: false,
-      type: ['Intellect']
+      type: ['Strength']
     },
     {
       id: 5,
@@ -264,9 +264,9 @@ const App: React.FC = () => {
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 0.1,
-      requiredTalentSkills: [0],
+      requiredTalentSkills: [4],
       active: false,
-      type: ['Speed', 'Intellect']
+      type: ['Strength']
     },
     {
       id: 6,
@@ -276,7 +276,7 @@ const App: React.FC = () => {
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 0.2,
-      requiredTalentSkills: [2, 4],
+      requiredTalentSkills: [5],
       active: false,
       type: ['Strength']
     },
@@ -288,9 +288,9 @@ const App: React.FC = () => {
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 0.15,
-      requiredTalentSkills: [5],
+      requiredTalentSkills: [],
       active: false,
-      type: ['Speed', 'Intellect']
+      type: ['Intellect']
     },
     {
       id: 8,
@@ -300,9 +300,9 @@ const App: React.FC = () => {
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 0.2,
-      requiredTalentSkills: [4, 6],
+      requiredTalentSkills: [7],
       active: false,
-      type: ['Intellect', 'Strength']
+      type: ['Intellect']
     },
     {
       id: 9,
@@ -312,7 +312,7 @@ const App: React.FC = () => {
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 0.15,
-      requiredTalentSkills: [7],
+      requiredTalentSkills: [8],
       active: false,
       type: ['Intellect']
     },
@@ -324,9 +324,9 @@ const App: React.FC = () => {
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 0.2,
-      requiredTalentSkills: [8, 9],
+      requiredTalentSkills: [9],
       active: false,
-      type: ['Strength']
+      type: ['Intellect']
     },
     {
       id: 11,
@@ -348,9 +348,9 @@ const App: React.FC = () => {
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 0.2,
-      requiredTalentSkills: [11, 6],
+      requiredTalentSkills: [11],
       active: false,
-      type: ['Speed']
+      type: ['Intellect']
     },
     {
       id: 13,
@@ -362,7 +362,7 @@ const App: React.FC = () => {
       perLevelMultiplier: 0.15,
       requiredTalentSkills: [12],
       active: false,
-      type: ['Intellect', 'Strength']
+      type: ['Speed']
     },
     {
       id: 14,
@@ -372,9 +372,9 @@ const App: React.FC = () => {
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 0.2,
-      requiredTalentSkills: [13, 9],
+      requiredTalentSkills: [13],
       active: false,
-      type: ['Strength', 'Intellect']
+      type: ['Speed']
     },
     {
       id: 15,
@@ -386,7 +386,7 @@ const App: React.FC = () => {
       perLevelMultiplier: 0.15,
       requiredTalentSkills: [14],
       active: false,
-      type: ['Speed', 'Strength']
+      type: ['Speed']
     },
     {
       id: 16,
@@ -396,9 +396,9 @@ const App: React.FC = () => {
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 0.2,
-      requiredTalentSkills: [15, 10],
+      requiredTalentSkills: [15],
       active: false,
-      type: ['Strength', 'Speed']
+      type: ['Speed']
     },
     {
       id: 17,
@@ -410,7 +410,7 @@ const App: React.FC = () => {
       perLevelMultiplier: 0.15,
       requiredTalentSkills: [16],
       active: false,
-      type: ['Speed', 'Intellect']
+      type: ['Speed']
     },
     {
       id: 18,
@@ -420,9 +420,9 @@ const App: React.FC = () => {
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 0.2,
-      requiredTalentSkills: [17, 11],
+      requiredTalentSkills: [17],
       active: false,
-      type: ['Strength']
+      type: ['Speed']
     },
     {
       id: 19,
@@ -432,9 +432,9 @@ const App: React.FC = () => {
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 0.15,
-      requiredTalentSkills: [18],
+      requiredTalentSkills: [0],
       active: false,
-      type: ['Intellect', 'Speed']
+      type: ['Strength', 'Intellect']
     },
     {
       id: 20,
@@ -444,9 +444,9 @@ const App: React.FC = () => {
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 0.2,
-      requiredTalentSkills: [19, 12],
+      requiredTalentSkills: [14, 8],
       active: false,
-      type: ['Speed']
+      type: ['Speed', 'Intellect']
     },
     {
       id: 21,
@@ -456,7 +456,7 @@ const App: React.FC = () => {
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 0.15,
-      requiredTalentSkills: [20],
+      requiredTalentSkills: [15, 4],
       active: false,
       type: ['Intellect', 'Strength']
     },
@@ -468,9 +468,9 @@ const App: React.FC = () => {
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 0.2,
-      requiredTalentSkills: [21, 13],
+      requiredTalentSkills: [10, 18],
       active: false,
-      type: ['Intellect']
+      type: ['Intellect', 'Speed']
     },
     {
       id: 23,
@@ -480,9 +480,9 @@ const App: React.FC = () => {
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 0.15,
-      requiredTalentSkills: [22],
+      requiredTalentSkills: [2, 14],
       active: false,
-      type: ['Strength', 'Intellect']
+      type: ['Strength', 'Speed']
     },
     {
       id: 24,
@@ -492,7 +492,7 @@ const App: React.FC = () => {
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 0.2,
-      requiredTalentSkills: [23, 14],
+      requiredTalentSkills: [8, 14],
       active: false,
       type: ['Intellect', 'Speed']
     },
@@ -504,7 +504,7 @@ const App: React.FC = () => {
       currentLevel: 0,
       maxLevel: 5,
       perLevelMultiplier: 0.15,
-      requiredTalentSkills: [24],
+      requiredTalentSkills: [15, 2],
       active: false,
       type: ['Speed', 'Strength']
     }

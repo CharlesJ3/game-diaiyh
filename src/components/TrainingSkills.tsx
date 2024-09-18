@@ -15,6 +15,24 @@ const TrainingSkillsContainer = styled.div`
   position: relative;
 `;
 
+const OverlayWrapper = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+`;
+
+const ContentWrapper = styled.div`
+  display: flex;
+  gap: 8px;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+`;
+
 const SkillColumn = styled.div`
   flex: 1;
   display: flex;
@@ -41,63 +59,60 @@ const pulseBorder = keyframes`
   }
 `;
 
-const SkillCard = styled.div<{ $isActive: boolean; $canUpgrade: boolean; $isRequired: boolean }>`
-  width: 100%;
-  height: 90px;
-  background-color: ${props => props.$canUpgrade ? 'rgba(200, 250, 200, 0.9)' : props.$isActive ? 'rgba(224, 247, 250, 0.9)' : 'rgba(250, 200, 200, 0.9)'};
-  border: ${props => props.$isRequired ? '4px' : '2px'} solid ${props => props.$canUpgrade ? '#4caf50' : props.$isActive ? '#2196f3' : '#f44336'};
+const SkillCard = styled.div<{ $isActive: boolean; $canUpgrade: boolean; $isRequired: boolean; $canActivate: boolean }>`
+  width: 50%;
+  height: 50px;
+  border: 4px solid ${props => props.$canUpgrade ? '#4caf50' : props.$isActive ? '#2196f3' : '#f44336'};
   border-radius: 8px;
   transition: all 0.3s ease;
   cursor: pointer;
+  margin: 0 auto;
   position: relative;
   overflow: hidden;
   z-index: 1;
-
-  &:hover {
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  }
+  background-color: ${props => props.$canActivate ? 'transparent' : 'rgba(244, 67, 54, 0.3)'};
 
   ${props => props.$isRequired && css`
     animation: ${css`${pulseBorder} 2s infinite`};
   `}
 `;
 
-const SkillTooltip = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+const SkillTooltip = styled.div<{ $isRightSide: boolean }>`
+  position: fixed;
   background-color: rgba(0, 0, 0, 0.8);
   color: white;
-  padding: 8px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  padding: 12px;
+  border-radius: 8px;
+  z-index: 1000;
+  max-width: 250px;
+  pointer-events: none;
+  ${props => props.$isRightSide ? 'left: calc(100% + 10px);' : 'right: calc(100% + 10px);'}
+  top: 50%;
+  transform: translateY(-50%);
+`;
+
+const TooltipContent = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-
-  ${SkillCard}:hover & {
-    opacity: 1;
-  }
+  gap: 8px;
 `;
 
-const SkillName = styled.h3`
-  margin: 0 0 4px 0;
-  font-size: 11px;
+const TooltipTitle = styled.h3`
+  margin: 0;
+  font-size: 16px;
+  border-bottom: 1px solid white;
+  padding-bottom: 4px;
 `;
 
-const SkillDescription = styled.p`
-  margin: 0 0 2px 0;
-  font-size: 9px;
+const TooltipInfo = styled.p`
+  margin: 0;
+  font-size: 12px;
 `;
 
-const ProgressBar = styled.div<{ $progress: number }>`
+const ProgressBar = styled.div<{ $progress: number; $canUpgrade: boolean }>`
   width: 100%;
   height: 100%;
-  background-color: #e0e0e0;
+  background-color: ${props => props.$canUpgrade ? '#e0e0e0' : '#ffcccb'};
   position: relative;
 
   &::after {
@@ -125,7 +140,7 @@ const SkillLevel = styled.div`
 const SkillCardWrapper = styled.div`
   position: relative;
   width: 100%;
-  margin-bottom: 10px;
+  margin-bottom: 25px;
 `;
 
 const ConnectionSvg = styled.svg`
@@ -178,17 +193,20 @@ const TrainingSkills: React.FC<TrainingSkillsProps> = ({ trainingTalents, setTra
   const containerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
   const [, forceUpdate] = useState({});
-  const [hoveredTalent, setHoveredTalent] = useState<number | null>(null);
+  const [hoveredTalent, setHoveredTalent] = useState<TrainingTalent | null>(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [requiredTalents, setRequiredTalents] = useState<number[]>([]);
+
+  const canActivate = (talent: TrainingTalent): boolean => {
+    return talent.requiredTalentSkills.every(reqId =>
+      trainingTalents.find(t => t.id === reqId && t.active)
+    );
+  };
 
   const canUpgrade = (talent: TrainingTalent): boolean => {
     const hasEnoughPoints = character.trainingTalentPoints >= talent.talentSkillCost;
     const isNotMaxLevel = talent.currentLevel < talent.maxLevel;
-    const hasRequiredTalents = talent.requiredTalentSkills.every(reqId =>
-      trainingTalents.find(t => t.id === reqId && t.active)
-    );
-
-    return hasEnoughPoints && isNotMaxLevel && hasRequiredTalents;
+    return hasEnoughPoints && isNotMaxLevel && canActivate(talent);
   };
 
   const upgradeSkill = (id: number) => {
@@ -226,12 +244,9 @@ const TrainingSkills: React.FC<TrainingSkillsProps> = ({ trainingTalents, setTra
     'Strength & Speed \n\n'
   ];
 
-  const handleMouseEnter = (talentId: number) => {
-    setHoveredTalent(talentId);
-    const talent = trainingTalents.find(t => t.id === talentId);
-    if (talent) {
-      setRequiredTalents(talent.requiredTalentSkills);
-    }
+  const handleMouseEnter = (talent: TrainingTalent) => {
+    setHoveredTalent(talent);
+    setRequiredTalents(talent.requiredTalentSkills);
   };
 
   const handleMouseLeave = () => {
@@ -239,29 +254,62 @@ const TrainingSkills: React.FC<TrainingSkillsProps> = ({ trainingTalents, setTra
     setRequiredTalents([]);
   };
 
+  const handleMouseMove = (event: React.MouseEvent) => {
+    setMousePosition({ x: event.clientX, y: event.clientY });
+  };
+
   const renderSkillCard = (talent: TrainingTalent) => (
     <SkillCardWrapper
       key={talent.id}
       ref={el => cardRefs.current[talent.id] = el}
-      onMouseEnter={() => handleMouseEnter(talent.id)}
+      onMouseEnter={() => handleMouseEnter(talent)}
       onMouseLeave={handleMouseLeave}
+      onMouseMove={handleMouseMove}
     >
       <SkillCard
         $isActive={talent.active}
         $canUpgrade={canUpgrade(talent)}
         $isRequired={requiredTalents.includes(talent.id)}
+        $canActivate={canActivate(talent)}
         onClick={() => upgradeSkill(talent.id)}
       >
-        <ProgressBar $progress={(talent.currentLevel / talent.maxLevel) * 100} />
+        <ProgressBar
+          $progress={(talent.currentLevel / talent.maxLevel) * 100}
+          $canUpgrade={canUpgrade(talent)}
+        />
         <SkillLevel>{talent.currentLevel}/{talent.maxLevel}</SkillLevel>
-        <SkillTooltip>
-          <SkillName>{talent.name}</SkillName>
-          <SkillDescription>{talent.description}</SkillDescription>
-          <SkillDescription>Cost: {talent.talentSkillCost}</SkillDescription>
-        </SkillTooltip>
       </SkillCard>
     </SkillCardWrapper>
   );
+
+  const renderTooltip = () => {
+    if (!hoveredTalent) return null;
+
+    const columnIndex = getColumnForTalent(hoveredTalent);
+    const isRightSide = columnIndex < 3;
+
+    return (
+      <SkillTooltip
+        $isRightSide={isRightSide}
+        style={{
+          top: `${mousePosition.y}px`,
+          [isRightSide ? 'left' : 'right']: `${isRightSide ? mousePosition.x + 10 : window.innerWidth - mousePosition.x + 10}px`,
+        }}
+      >
+        <TooltipContent>
+          <TooltipTitle>{hoveredTalent.name}</TooltipTitle>
+          <TooltipInfo>Description: {hoveredTalent.description}</TooltipInfo>
+          <TooltipInfo>Current Level: {hoveredTalent.currentLevel}</TooltipInfo>
+          <TooltipInfo>Max Level: {hoveredTalent.maxLevel}</TooltipInfo>
+          <TooltipInfo>Cost: {hoveredTalent.talentSkillCost}</TooltipInfo>
+          <TooltipInfo>Per Level Multiplier: {hoveredTalent.perLevelMultiplier}</TooltipInfo>
+          <TooltipInfo>Type: {hoveredTalent.type.join(', ')}</TooltipInfo>
+          <TooltipInfo>Active: {hoveredTalent.active ? 'Yes' : 'No'}</TooltipInfo>
+          <TooltipInfo>Required Talents: {hoveredTalent.requiredTalentSkills.join(', ')}</TooltipInfo>
+        </TooltipContent>
+      </SkillTooltip>
+    );
+  };
 
   const renderColumns = () => {
     const columns: JSX.Element[][] = [[], [], [], [], [], []];
@@ -304,20 +352,16 @@ const TrainingSkills: React.FC<TrainingSkillsProps> = ({ trainingTalents, setTra
           const requiredTalent = trainingTalents.find(t => t.id === requiredId);
           const isActive = requiredTalent?.active || false;
           const color = isActive ? '#2196f3' : '#f44336';
-          const isHovered = hoveredTalent === talent.id || hoveredTalent === requiredId;
 
           connections.push(
-            <g key={`${requiredId}-${talent.id}`}>
-              <path
-                d={`M${startX},${startY} C${startX},${(startY + endY) / 2} ${endX},${(startY + endY) / 2} ${endX},${endY}`}
-                fill="none"
-                stroke={color}
-                strokeWidth={isHovered ? "5" : "3"}
-                markerEnd={`url(#arrowhead-${isActive ? 'active' : 'inactive'}${isHovered ? '-hovered' : ''})`}
-                opacity={isHovered ? 1 : 0.7}
-                transition="all 0.3s ease"
-              />
-            </g>
+            <path
+              key={`${requiredId}-${talent.id}`}
+              d={`M${startX},${startY} C${startX},${(startY + endY) / 2} ${endX},${(startY + endY) / 2} ${endX},${endY}`}
+              fill="none"
+              stroke={color}
+              strokeWidth="5"
+              opacity={0.9}
+            />
           );
         }
       });
@@ -325,48 +369,6 @@ const TrainingSkills: React.FC<TrainingSkillsProps> = ({ trainingTalents, setTra
 
     return (
       <ConnectionSvg>
-        <defs>
-          <marker
-            id="arrowhead-active"
-            markerWidth="10"
-            markerHeight="7"
-            refX="0"
-            refY="3.5"
-            orient="auto"
-          >
-            <polygon points="0 0, 10 3.5, 0 7" fill="#2196f3" />
-          </marker>
-          <marker
-            id="arrowhead-inactive"
-            markerWidth="10"
-            markerHeight="7"
-            refX="0"
-            refY="3.5"
-            orient="auto"
-          >
-            <polygon points="0 0, 10 3.5, 0 7" fill="#f44336" />
-          </marker>
-          <marker
-            id="arrowhead-active-hovered"
-            markerWidth="12"
-            markerHeight="9"
-            refX="0"
-            refY="4.5"
-            orient="auto"
-          >
-            <polygon points="0 0, 12 4.5, 0 9" fill="#2196f3" />
-          </marker>
-          <marker
-            id="arrowhead-inactive-hovered"
-            markerWidth="12"
-            markerHeight="9"
-            refX="0"
-            refY="4.5"
-            orient="auto"
-          >
-            <polygon points="0 0, 12 4.5, 0 9" fill="#f44336" />
-          </marker>
-        </defs>
         {connections}
       </ConnectionSvg>
     );
@@ -403,8 +405,12 @@ const TrainingSkills: React.FC<TrainingSkillsProps> = ({ trainingTalents, setTra
 
   return (
     <TrainingSkillsContainer ref={containerRef}>
-      {renderColumns()}
-      {drawConnections()}
+      <OverlayWrapper />
+      <ContentWrapper>
+        {renderColumns()}
+        {drawConnections()}
+      </ContentWrapper>
+      {renderTooltip()}
     </TrainingSkillsContainer>
   );
 };
