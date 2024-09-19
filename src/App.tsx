@@ -35,7 +35,7 @@ const MainSection = styled.section`
   flex: 5;
   display: flex;
   padding: .5rem;
-  overflow: auto;
+  overflow: hidden;
 `;
 
 const MenuSection = styled.section`
@@ -80,17 +80,21 @@ interface TrainingItem {
 interface Character {
   name: string;
   title: string;
-  overallXp: number;
-  overallLevel: number;
-  overallMaxXp: number;
-  trainingOverallXp: number;
-  trainingOverallLevel: number;
-  trainingMaxXp: number;
-  trainingSpeed: number;
-  overallTrainingPoints: number;
-  activeTrainingPoints: number;
-  trainingTalentPoints: number;
-  overallTrainingTalentPoints: number;
+  training: {
+    school: { [key: string]: StatItem };
+    work: { [key: string]: StatItem };
+  };
+  play: {
+    type: { [key: string]: StatItem };
+    subcategory: { [key: string]: StatItem };
+  };
+  compete: {
+    type: { [key: string]: StatItem };
+  };
+}
+
+interface HeaderProps {
+  character: Character;
 }
 
 interface TrainingTalent {
@@ -106,6 +110,24 @@ interface TrainingTalent {
   type: ('Strength' | 'Intellect' | 'Speed')[];
 }
 
+interface PlayItem {
+  title: string;
+  level: number;
+  category: {
+    type: 'gaming' | 'physical sports' | 'mental sport' | 'relaxing' | 'extreme';
+    subcategory: 'fighting' | 'racing' | 'puzzle' | 'strategy' | 'card' | 'board' | 'team' | 'solo' | 'endurance';
+  };
+  xp: number;
+  currentLevel: number;
+  maxXp: number;
+  active: boolean;
+  unlocked: boolean;
+  unlockHow: string;
+  xpGain: number;
+  speed: number;
+  currentSpeed: number;
+}
+
 interface NotificationItem {
   id: number;
   message: string;
@@ -113,6 +135,15 @@ interface NotificationItem {
   active: boolean;
   notificationStartTimer: number;
   notificationEndTimer: number;
+}
+
+interface StatItem {
+  xp: number;
+  maxXp: number;
+  level: number;
+  prestigeXp: number;
+  prestigeMaxXp: number;
+  prestigeLevel: number;
 }
 
 const App: React.FC = () => {
@@ -179,6 +210,7 @@ const App: React.FC = () => {
     },
   ]);
 
+
   const [character, setCharacter] = useState<Character>({
     name: "Player",
     title: "Novice",
@@ -192,8 +224,153 @@ const App: React.FC = () => {
     overallTrainingPoints: 2,
     activeTrainingPoints: 0,
     trainingTalentPoints: 5,
-    overallTrainingTalentPoints: 5
+    overallTrainingTalentPoints: 5,
+    training: {
+      school: {
+        elementary: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        middle: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        high: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        college: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        learnFromGhosts: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 }
+      },
+      work: {
+        intern: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        beginner: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        intermediate: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        expert: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        master: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        '10x': { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 }
+      }
+    },
+    play: {
+      type: {
+        gaming: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        'physical sports': { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        'mental sport': { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        relaxing: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        extreme: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 }
+      },
+      subcategory: {
+        fighting: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        racing: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        puzzle: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        strategy: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        card: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        board: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        team: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        solo: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        endurance: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 }
+      }
+    },
+    compete: {
+      type: {
+        placeholderValue1: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        placeholderValue2: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
+        placeholderValue3: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 }
+      }
+    }
   });
+
+  const [play, setPlay] = useState<PlayItem[]>([
+    {
+      title: "Basic Play",
+      level: 1,
+      category: { type: "gaming", subcategory: "fighting" },
+      xp: 0,
+      currentLevel: 1,
+      maxXp: 1,
+      active: false,
+      unlocked: true,
+      unlockHow: "Boss 1",
+      xpGain: 1,
+      speed: 10000,
+      currentSpeed: 0,
+    },
+    {
+      title: "Advanced Play",
+      level: 1,
+      category: { type: "gaming", subcategory: "strategy" },
+      xp: 0,
+      currentLevel: 1,
+      maxXp: 10,
+      active: false,
+      unlocked: true,
+      unlockHow: "Boss 2",
+      xpGain: 2,
+      speed: 8000,
+      currentSpeed: 0,
+    },
+    {
+      title: "Extreme Sports",
+      level: 1,
+      category: { type: "physical sports", subcategory: "endurance" },
+      xp: 0,
+      currentLevel: 1,
+      maxXp: 20,
+      active: false,
+      unlocked: false,
+      unlockHow: "Boss 3",
+      xpGain: 3,
+      speed: 12000,
+      currentSpeed: 0,
+    },
+    {
+      title: "Puzzle Solving",
+      level: 1,
+      category: { type: "mental sport", subcategory: "puzzle" },
+      xp: 0,
+      currentLevel: 1,
+      maxXp: 15,
+      active: false,
+      unlocked: true,
+      unlockHow: "Boss 4",
+      xpGain: 2,
+      speed: 9000,
+      currentSpeed: 0,
+    },
+    {
+      title: "Team Sports",
+      level: 1,
+      category: { type: "physical sports", subcategory: "team" },
+      xp: 0,
+      currentLevel: 1,
+      maxXp: 25,
+      active: false,
+      unlocked: false,
+      unlockHow: "Boss 5",
+      xpGain: 4,
+      speed: 15000,
+      currentSpeed: 0,
+    },
+    {
+      title: "Solo Adventure",
+      level: 1,
+      category: { type: "extreme", subcategory: "solo" },
+      xp: 0,
+      currentLevel: 1,
+      maxXp: 30,
+      active: false,
+      unlocked: false,
+      unlockHow: "Boss 6",
+      xpGain: 5,
+      speed: 20000,
+      currentSpeed: 0,
+    },
+    {
+      title: "Relaxing Meditation",
+      level: 1,
+      category: { type: "relaxing", subcategory: "solo" },
+      xp: 0,
+      currentLevel: 1,
+      maxXp: 5,
+      active: false,
+      unlocked: true,
+      unlockHow: "Boss 7",
+      xpGain: 1,
+      speed: 5000,
+      currentSpeed: 0,
+    }
+  ]);
 
   const handleCloseSplashScreen = () => {
     setShowSplashScreen(false);
@@ -556,6 +733,19 @@ const App: React.FC = () => {
     });
   };
 
+  const togglePlayActive = (index: number) => {
+    setPlay(prevPlay => {
+      const updatedPlay = [...prevPlay];
+      const item = updatedPlay[index];
+      updatedPlay[index] = {
+        ...item,
+        active: !item.active,
+        currentSpeed: 0 // Reset progress when toggling
+      };
+      return updatedPlay;
+    });
+  };
+
   const addTrainingTalentPoints = () => {
     setCharacter(prevCharacter => ({
       ...prevCharacter,
@@ -651,6 +841,39 @@ const App: React.FC = () => {
       });
     });
 
+    setPlay(prevPlay => {
+      return prevPlay.map(item => {
+        if (item.active) {
+          const newCurrentSpeed = item.currentSpeed + 16.67; // Assuming 60 FPS
+          if (newCurrentSpeed >= item.speed) {
+            const newXp = item.xp + item.xpGain;
+            if (newXp >= item.maxXp) {
+              // Level up logic
+              return {
+                ...item,
+                currentLevel: item.currentLevel + 1,
+                xp: newXp - item.maxXp,
+                maxXp: Math.floor(item.maxXp * 1.1),
+                currentSpeed: 0
+              };
+            } else {
+              return {
+                ...item,
+                xp: newXp,
+                currentSpeed: 0
+              };
+            }
+          } else {
+            return {
+              ...item,
+              currentSpeed: newCurrentSpeed
+            };
+          }
+        }
+        return item;
+      });
+    });
+
     setCharacter(prevCharacter => {
       const activeTrainings = training.filter(item => item.active && item.currentSpeed === 0);
       const totalXpGain = activeTrainings.reduce((sum, item) => sum + item.xpGain, 0);
@@ -719,7 +942,7 @@ const App: React.FC = () => {
           setTrainingTalents={setTrainingTalents}
         />;
       case 'Play':
-        return <Play />;
+        return <Play play={play} setPlay={setPlay} togglePlayActive={togglePlayActive} />;
       case 'Compete':
         return <Compete />;
       case 'Prestige':
@@ -739,16 +962,16 @@ const App: React.FC = () => {
     }
   };
 
-  if (showSplashScreen) {
-    return <SplashScreen onClose={handleCloseSplashScreen} />;
-  }
+  // if (showSplashScreen) {
+  //   return <SplashScreen onClose={handleCloseSplashScreen} />;
+  // }
 
   return (
     <>
       <GlobalStyle />
       <AppContainer>
         <HeaderSection>
-          <Header title="DEATH IS ALL IN YOUR HEAD IDLE" currencies={currencies} />
+          <Header character={character} />
         </HeaderSection>
         <MainSection>
           {renderActiveComponent()}
