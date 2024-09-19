@@ -11,6 +11,7 @@ import Settings from './components/Settings';
 import HelpTutorial from './components/HelpTutorial';
 import MainArea from './components/MainArea';
 import Notifications from './components/Notifications';
+import SplashScreen from './components/SplashScreen';
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -115,6 +116,7 @@ interface NotificationItem {
 }
 
 const App: React.FC = () => {
+  const [showSplashScreen, setShowSplashScreen] = useState(true);
   const [currencies, setCurrencies] = useState<Currencies>({
     time: [{ amount: 0, name: "Time", active: true }],
     money: [
@@ -177,7 +179,6 @@ const App: React.FC = () => {
     },
   ]);
 
-
   const [character, setCharacter] = useState<Character>({
     name: "Player",
     title: "Novice",
@@ -193,6 +194,10 @@ const App: React.FC = () => {
     trainingTalentPoints: 5,
     overallTrainingTalentPoints: 5
   });
+
+  const handleCloseSplashScreen = () => {
+    setShowSplashScreen(false);
+  };
 
   // These are all temporary, I'm going to add in real training later but for now I need to test the UI
   const [trainingTalents, setTrainingTalents] = useState<TrainingTalent[]>([
@@ -734,16 +739,19 @@ const App: React.FC = () => {
     }
   };
 
+  if (showSplashScreen) {
+    return <SplashScreen onClose={handleCloseSplashScreen} />;
+  }
+
   return (
     <>
       <GlobalStyle />
       <AppContainer>
         <HeaderSection>
-          <Header title="Idle Game - Temp Title" currencies={currencies} />
+          <Header title="DEATH IS ALL IN YOUR HEAD IDLE" currencies={currencies} />
         </HeaderSection>
         <MainSection>
           {renderActiveComponent()}
-          {console.log(trainingTalents)}
         </MainSection>
         <MenuSection>
           <Menu onMenuItemClick={handleMenuItemClick} />

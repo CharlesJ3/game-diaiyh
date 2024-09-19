@@ -219,8 +219,6 @@ const TrainingSkills: React.FC<TrainingSkillsProps> = ({ trainingTalents, setTra
         ...prevCharacter,
         trainingTalentPoints: prevCharacter.trainingTalentPoints - talent.talentSkillCost
       }));
-    } else {
-      console.log("Cannot upgrade talent:", talent?.name);
     }
   };
 

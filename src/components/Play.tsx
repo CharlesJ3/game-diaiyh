@@ -8,16 +8,55 @@ const PlayContainer = styled.div`
   border-radius: 8px;
   background-color: #f0f0f0;
   display: flex;
+  flex-direction: column;
+  color: #666;
+`;
+
+const TopArea = styled.div`
+  flex: 1;
+  display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 24px;
-  color: #666;
+  border-bottom: 1px solid #ccc;
+`;
+
+const MiddleArea = styled.div`
+  flex: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const BottomArea = styled.div`
+  flex: 1;
+  display: flex;
+  border-top: 1px solid #ccc;
+`;
+
+const BottomLeftArea = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-right: 1px solid #ccc;
+`;
+
+const BottomRightArea = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const Play: React.FC = () => {
   return (
     <PlayContainer>
-      Play Area
+      <TopArea>Top Area</TopArea>
+      <MiddleArea>Middle Area</MiddleArea>
+      <BottomArea>
+        <BottomLeftArea>Bottom Left</BottomLeftArea>
+        <BottomRightArea>Bottom Right</BottomRightArea>
+      </BottomArea>
     </PlayContainer>
   );
 };
