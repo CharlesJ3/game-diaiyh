@@ -32,14 +32,13 @@ const HeaderSection = styled.section`
 `;
 
 const MainSection = styled.section`
-  flex: 5;
+  flex: 8;
   display: flex;
   padding: .5rem;
   overflow: hidden;
 `;
 
 const MenuSection = styled.section`
-  flex: 1;
   display: flex;
   align-items: center;
 `;
@@ -144,6 +143,7 @@ interface StatItem {
   prestigeXp: number;
   prestigeMaxXp: number;
   prestigeLevel: number;
+  active: boolean;
 }
 
 const App: React.FC = () => {
@@ -227,49 +227,50 @@ const App: React.FC = () => {
     overallTrainingTalentPoints: 5,
     training: {
       school: {
-        elementary: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        middle: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        high: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        college: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        learnFromGhosts: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 }
+        elementary: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: true },
+        middle: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
+        high: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: true },
+        college: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
+        learnFromGhosts: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false }
       },
       work: {
-        intern: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        beginner: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        intermediate: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        expert: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        master: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        '10x': { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 }
+        intern: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
+        beginner: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
+        intermediate: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
+        expert: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: true },
+        master: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
+        '10x': { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: true }
       }
     },
     play: {
       type: {
-        gaming: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        'physical sports': { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        'mental sport': { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        relaxing: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        extreme: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 }
+        gaming: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
+        'physical sports': { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
+        'mental sport': { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
+        relaxing: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: true },
+        extreme: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false }
       },
       subcategory: {
-        fighting: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        racing: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        puzzle: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        strategy: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        card: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        board: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        team: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        solo: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        endurance: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 }
+        fighting: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
+        racing: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: true },
+        puzzle: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
+        strategy: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
+        card: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
+        board: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
+        team: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: true },
+        solo: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
+        endurance: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false }
       }
     },
     compete: {
       type: {
-        placeholderValue1: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        placeholderValue2: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 },
-        placeholderValue3: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0 }
+        placeholderValue1: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
+        placeholderValue2: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
+        placeholderValue3: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false }
       }
     }
   });
+
 
   const [play, setPlay] = useState<PlayItem[]>([
     {

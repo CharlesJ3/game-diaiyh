@@ -5,7 +5,7 @@ const MenuContainer = styled.div`
   display: flex;
   justify-content: center;
   gap: 1rem;
-  padding: 1rem;
+  padding: .25rem;
   background-color: #e0e0e0;
   border-top: 2px solid #ccc;
   width: 100%;
