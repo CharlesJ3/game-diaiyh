@@ -79,6 +79,17 @@ interface TrainingItem {
 interface Character {
   name: string;
   title: string;
+  overallXp: number;
+  overallLevel: number;
+  overallMaxXp: number;
+  trainingOverallXp: number;
+  trainingOverallLevel: number;
+  trainingMaxXp: number;
+  trainingSpeed: number;
+  overallTrainingPoints: number;
+  activeTrainingPoints: number;
+  trainingTalentPoints: number;
+  overallTrainingTalentPoints: number;
   training: {
     school: { [key: string]: StatItem };
     work: { [key: string]: StatItem };
@@ -90,10 +101,6 @@ interface Character {
   compete: {
     type: { [key: string]: StatItem };
   };
-}
-
-interface HeaderProps {
-  character: Character;
 }
 
 interface TrainingTalent {
@@ -174,7 +181,7 @@ const App: React.FC = () => {
       unlocked: true,
       unlockHow: "Boss 1",
       xpGain: 1,
-      speed: 100,
+      speed: 1000,
       currentSpeed: 0,
       trainingPointsRequired: 1
     },
@@ -210,7 +217,6 @@ const App: React.FC = () => {
     },
   ]);
 
-
   const [character, setCharacter] = useState<Character>({
     name: "Player",
     title: "Novice",
@@ -221,15 +227,15 @@ const App: React.FC = () => {
     trainingOverallLevel: 1,
     trainingMaxXp: 50,
     trainingSpeed: 1,
-    overallTrainingPoints: 2,
+    overallTrainingPoints: 5,
     activeTrainingPoints: 0,
     trainingTalentPoints: 5,
     overallTrainingTalentPoints: 5,
     training: {
       school: {
-        elementary: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: true },
+        elementary: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
         middle: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
-        high: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: true },
+        high: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
         college: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
         learnFromGhosts: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false }
       },
@@ -237,9 +243,9 @@ const App: React.FC = () => {
         intern: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
         beginner: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
         intermediate: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
-        expert: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: true },
+        expert: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
         master: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
-        '10x': { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: true }
+        '10x': { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false }
       }
     },
     play: {
@@ -247,17 +253,17 @@ const App: React.FC = () => {
         gaming: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
         'physical sports': { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
         'mental sport': { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
-        relaxing: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: true },
+        relaxing: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
         extreme: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false }
       },
       subcategory: {
         fighting: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
-        racing: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: true },
+        racing: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
         puzzle: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
         strategy: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
         card: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
         board: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
-        team: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: true },
+        team: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
         solo: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false },
         endurance: { xp: 0, maxXp: 100, level: 1, prestigeXp: 0, prestigeMaxXp: 1000, prestigeLevel: 0, active: false }
       }
@@ -270,7 +276,6 @@ const App: React.FC = () => {
       }
     }
   });
-
 
   const [play, setPlay] = useState<PlayItem[]>([
     {
@@ -372,10 +377,6 @@ const App: React.FC = () => {
       currentSpeed: 0,
     }
   ]);
-
-  const handleCloseSplashScreen = () => {
-    setShowSplashScreen(false);
-  };
 
   // These are all temporary, I'm going to add in real training later but for now I need to test the UI
   const [trainingTalents, setTrainingTalents] = useState<TrainingTalent[]>([
@@ -700,6 +701,10 @@ const App: React.FC = () => {
 
   const animationFrameRef = useRef<number>();
 
+  const handleCloseSplashScreen = () => {
+    setShowSplashScreen(false);
+  };
+
   const handleMenuItemClick = (item: string) => {
     setActiveComponent(item);
   };
@@ -710,7 +715,6 @@ const App: React.FC = () => {
       const item = updatedTraining[index];
       const newActiveState = !item.active;
       let newActiveTrainingPoints = character.activeTrainingPoints;
-      // Check if activating and if there are enough training points
       if (newActiveState) {
         newActiveTrainingPoints += item.trainingPointsRequired;
       } else {
@@ -722,15 +726,39 @@ const App: React.FC = () => {
           ...item,
           active: newActiveState
         };
-        setCharacter(prevCharacter => ({
-          ...prevCharacter,
-          activeTrainingPoints: newActiveTrainingPoints
-        }));
+
+        setCharacter(prevCharacter => {
+          const newCharacter = { ...prevCharacter };
+          newCharacter.activeTrainingPoints = newActiveTrainingPoints;
+
+          // Count active skills for each category
+          const activeCategoryCounts = updatedTraining.reduce((counts, skill) => {
+            if (skill.active) {
+              counts.school[skill.category.school] = (counts.school[skill.category.school] || 0) + 1;
+              counts.work[skill.category.work] = (counts.work[skill.category.work] || 0) + 1;
+            }
+            return counts;
+          }, { school: { elementary: 0, middle: 0, high: 0, college: 0, learnFromGhosts: 0 }, work: { intern: 0, beginner: 0, intermediate: 0, expert: 0, master: 0, '10x': 0 } });
+
+          // Update active state for school category
+          if (newCharacter.training.school[item.category.school]) {
+            newCharacter.training.school[item.category.school].active =
+              activeCategoryCounts.school[item.category.school] > 0;
+          }
+
+          // Update active state for work category
+          if (newCharacter.training.work[item.category.work]) {
+            newCharacter.training.work[item.category.work].active =
+              activeCategoryCounts.work[item.category.work] > 0;
+          }
+
+          return newCharacter;
+        });
 
         return updatedTraining;
       }
 
-      return prevTraining; // Return the original state if we can't activate
+      return prevTraining;
     });
   };
 
@@ -738,11 +766,41 @@ const App: React.FC = () => {
     setPlay(prevPlay => {
       const updatedPlay = [...prevPlay];
       const item = updatedPlay[index];
+      const newActiveState = !item.active;
+
       updatedPlay[index] = {
         ...item,
-        active: !item.active,
-        currentSpeed: 0 // Reset progress when toggling
+        active: newActiveState,
+        currentSpeed: 0
       };
+
+      setCharacter(prevCharacter => {
+        const newCharacter = { ...prevCharacter };
+
+        // Count active play items for each category
+        const activeCategoryCounts = updatedPlay.reduce((counts, playItem) => {
+          if (playItem.active) {
+            counts.type[playItem.category.type] = (counts.type[playItem.category.type] || 0) + 1;
+            counts.subcategory[playItem.category.subcategory] = (counts.subcategory[playItem.category.subcategory] || 0) + 1;
+          }
+          return counts;
+        }, { type: {} as Record<string, number>, subcategory: {} as Record<string, number> });
+
+        // Update active state for type category
+        if (newCharacter.play.type[item.category.type]) {
+          newCharacter.play.type[item.category.type].active =
+            activeCategoryCounts.type[item.category.type] > 0;
+        }
+
+        // Update active state for subcategory
+        if (newCharacter.play.subcategory[item.category.subcategory]) {
+          newCharacter.play.subcategory[item.category.subcategory].active =
+            activeCategoryCounts.subcategory[item.category.subcategory] > 0;
+        }
+
+        return newCharacter;
+      });
+
       return updatedPlay;
     });
   };
@@ -758,11 +816,10 @@ const App: React.FC = () => {
   const addNotification = (message: string, type: 'tutorial' | 'normal' | 'important' | 'logging' = 'normal') => {
     const now = Date.now();
 
-    // Check if this is a duplicate notification within the last second
     if (lastNotificationRef.current &&
       lastNotificationRef.current.message === message &&
       now - lastNotificationRef.current.timestamp < 1000) {
-      return; // Don't add duplicate notification
+      return;
     }
 
     const newNotification: NotificationItem = {
@@ -793,7 +850,6 @@ const App: React.FC = () => {
       return updatedLog;
     });
 
-    // Update the last notification reference
     lastNotificationRef.current = { message, timestamp: now };
   };
 
@@ -807,6 +863,66 @@ const App: React.FC = () => {
     addNotification(`${trainingName} increased to level ${newLevel}`, 'normal');
   };
 
+  const updateCharacterTrainingExperience = (category: TrainingCategory, xpGain: number) => {
+    setCharacter(prevCharacter => {
+      const newCharacter = { ...prevCharacter };
+
+      if (newCharacter.training.school[category.school]) {
+        const schoolStat = newCharacter.training.school[category.school];
+        schoolStat.xp += xpGain;
+        if (schoolStat.xp >= schoolStat.maxXp) {
+          schoolStat.level += 1;
+          schoolStat.xp -= schoolStat.maxXp;
+          schoolStat.maxXp = Math.floor(schoolStat.maxXp * 1.1);
+          addNotification(`${category.school} school training increased to level ${schoolStat.level}`, 'normal');
+        }
+      }
+
+      if (newCharacter.training.work[category.work]) {
+        const workStat = newCharacter.training.work[category.work];
+        workStat.xp += xpGain;
+        if (workStat.xp >= workStat.maxXp) {
+          workStat.level += 1;
+          workStat.xp -= workStat.maxXp;
+          workStat.maxXp = Math.floor(workStat.maxXp * 1.1);
+          addNotification(`${category.work} work training increased to level ${workStat.level}`, 'normal');
+        }
+      }
+
+      return newCharacter;
+    });
+  };
+
+  const updateCharacterPlayExperience = (category: { type: string; subcategory: string }, xpGain: number) => {
+    setCharacter(prevCharacter => {
+      const newCharacter = { ...prevCharacter };
+
+      if (newCharacter.play.type[category.type]) {
+        const typeStat = newCharacter.play.type[category.type];
+        typeStat.xp += xpGain;
+        if (typeStat.xp >= typeStat.maxXp) {
+          typeStat.level += 1;
+          typeStat.xp -= typeStat.maxXp;
+          typeStat.maxXp = Math.floor(typeStat.maxXp * 1.1);
+          addNotification(`${category.type} play type increased to level ${typeStat.level}`, 'normal');
+        }
+      }
+
+      if (newCharacter.play.subcategory[category.subcategory]) {
+        const subcategoryStat = newCharacter.play.subcategory[category.subcategory];
+        subcategoryStat.xp += xpGain;
+        if (subcategoryStat.xp >= subcategoryStat.maxXp) {
+          subcategoryStat.level += 1;
+          subcategoryStat.xp -= subcategoryStat.maxXp;
+          subcategoryStat.maxXp = Math.floor(subcategoryStat.maxXp * 1.1);
+          addNotification(`${category.subcategory} play subcategory increased to level ${subcategoryStat.level}`, 'normal');
+        }
+      }
+
+      return newCharacter;
+    });
+  };
+
   const updateGame = (timestamp: number) => {
     setTraining(prevTraining => {
       return prevTraining.map(item => {
@@ -817,6 +933,7 @@ const App: React.FC = () => {
             if (newXp >= item.maxXp) {
               addTrainingTalentPoints();
               handleTrainingLevelUp(item.title, item.currentLevel + 1);
+              updateCharacterTrainingExperience(item.category, item.xpGain);
               return {
                 ...item,
                 currentLevel: item.currentLevel + 1,
@@ -825,6 +942,7 @@ const App: React.FC = () => {
                 currentSpeed: 0
               };
             } else {
+              updateCharacterTrainingExperience(item.category, item.xpGain);
               return {
                 ...item,
                 xp: newXp,
@@ -845,11 +963,11 @@ const App: React.FC = () => {
     setPlay(prevPlay => {
       return prevPlay.map(item => {
         if (item.active) {
-          const newCurrentSpeed = item.currentSpeed + 16.67; // Assuming 60 FPS
+          const newCurrentSpeed = item.currentSpeed + 16.67;
           if (newCurrentSpeed >= item.speed) {
             const newXp = item.xp + item.xpGain;
             if (newXp >= item.maxXp) {
-              // Level up logic
+              updateCharacterPlayExperience(item.category, item.xpGain);
               return {
                 ...item,
                 currentLevel: item.currentLevel + 1,
@@ -858,6 +976,7 @@ const App: React.FC = () => {
                 currentSpeed: 0
               };
             } else {
+              updateCharacterPlayExperience(item.category, item.xpGain);
               return {
                 ...item,
                 xp: newXp,
@@ -900,7 +1019,7 @@ const App: React.FC = () => {
     setNotifications(prevNotifications =>
       prevNotifications.map(notification => {
         if (notification.active) {
-          const newStartTimer = notification.notificationStartTimer + 16.67; // Assuming 60 FPS
+          const newStartTimer = notification.notificationStartTimer + 16.67;
           if (newStartTimer >= notification.notificationEndTimer) {
             return { ...notification, active: false };
           }
@@ -943,7 +1062,7 @@ const App: React.FC = () => {
           setTrainingTalents={setTrainingTalents}
         />;
       case 'Play':
-        return <Play play={play} setPlay={setPlay} togglePlayActive={togglePlayActive} />;
+        return <Play play={play} setPlay={setPlay} togglePlayActive={togglePlayActive} character={character} />;
       case 'Compete':
         return <Compete />;
       case 'Prestige':
@@ -962,10 +1081,6 @@ const App: React.FC = () => {
         />;
     }
   };
-
-  // if (showSplashScreen) {
-  //   return <SplashScreen onClose={handleCloseSplashScreen} />;
-  // }
 
   return (
     <>

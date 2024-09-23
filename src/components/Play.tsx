@@ -148,6 +148,12 @@ interface PlayProps {
   play: PlayItem[];
   setPlay: React.Dispatch<React.SetStateAction<PlayItem[]>>;
   togglePlayActive: (index: number) => void;
+  character: {
+    play: {
+      type: { [key: string]: { active: boolean } };
+      subcategory: { [key: string]: { active: boolean } };
+    };
+  };
 }
 
 const getBackgroundColor = (type: string, subcategory: string) => {
@@ -177,7 +183,7 @@ const getBackgroundColor = (type: string, subcategory: string) => {
   return baseColor + shade;
 };
 
-const Play: React.FC<PlayProps> = ({ play, setPlay, togglePlayActive }) => {
+const Play: React.FC<PlayProps> = ({ play, setPlay, togglePlayActive, character }) => {
   return (
     <PlayContainer>
       <TopArea>
@@ -194,7 +200,12 @@ const Play: React.FC<PlayProps> = ({ play, setPlay, togglePlayActive }) => {
               <PlayContent>
                 <PlayTitle>{item.title}</PlayTitle>
                 <PlayInfo>Level: {item.currentLevel} | XP: {item.xp}/{item.maxXp}</PlayInfo>
-                <PlayInfo>Type: {item.category.type} | Subcategory: {item.category.subcategory}</PlayInfo>
+                <PlayInfo>
+                  Type: {item.category.type}
+                  ({character.play.type[item.category.type]?.active ? 'Active' : 'Inactive'}) |
+                  Subcategory: {item.category.subcategory}
+                  ({character.play.subcategory[item.category.subcategory]?.active ? 'Active' : 'Inactive'})
+                </PlayInfo>
                 <SpeedProgressBarContainer>
                   <SpeedProgressBar $progress={(item.currentSpeed / item.speed) * 100} />
                 </SpeedProgressBarContainer>
