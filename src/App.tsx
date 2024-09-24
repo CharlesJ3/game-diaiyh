@@ -132,6 +132,11 @@ interface PlayItem {
   xpGain: number;
   speed: number;
   currentSpeed: number;
+  gameActive: boolean;
+  gameType: string;
+  gameMultiplier: number;
+  gameMultiplierMax: number;
+  gameMultiplierLevel: number;
 }
 
 interface NotificationItem {
@@ -291,6 +296,11 @@ const App: React.FC = () => {
       xpGain: 1,
       speed: 10000,
       currentSpeed: 0,
+      gameActive: false,
+      gameType: "tictactoe",
+      gameMultiplier: 1.00,
+      gameMultiplierMax: 2.00,
+      gameMultiplierLevel: 0.0
     },
     {
       title: "Advanced Play",
@@ -305,6 +315,11 @@ const App: React.FC = () => {
       xpGain: 2,
       speed: 8000,
       currentSpeed: 0,
+      gameActive: false,
+      gameType: "sand",
+      gameMultiplier: 1.00,
+      gameMultiplierMax: 2.00,
+      gameMultiplierLevel: 0.0
     },
     {
       title: "Extreme Sports",
@@ -319,6 +334,11 @@ const App: React.FC = () => {
       xpGain: 3,
       speed: 12000,
       currentSpeed: 0,
+      gameActive: false,
+      gameType: "sand",
+      gameMultiplier: 1.00,
+      gameMultiplierMax: 2.00,
+      gameMultiplierLevel: 0.0
     },
     {
       title: "Puzzle Solving",
@@ -333,6 +353,11 @@ const App: React.FC = () => {
       xpGain: 2,
       speed: 9000,
       currentSpeed: 0,
+      gameActive: false,
+      gameType: "sand",
+      gameMultiplier: 1.00,
+      gameMultiplierMax: 2.00,
+      gameMultiplierLevel: 0.0
     },
     {
       title: "Team Sports",
@@ -347,6 +372,11 @@ const App: React.FC = () => {
       xpGain: 4,
       speed: 15000,
       currentSpeed: 0,
+      gameActive: false,
+      gameType: "sand",
+      gameMultiplier: 1.00,
+      gameMultiplierMax: 2.00,
+      gameMultiplierLevel: 0.0
     },
     {
       title: "Solo Adventure",
@@ -361,6 +391,11 @@ const App: React.FC = () => {
       xpGain: 5,
       speed: 20000,
       currentSpeed: 0,
+      gameActive: false,
+      gameType: "sand",
+      gameMultiplier: 1.00,
+      gameMultiplierMax: 2.00,
+      gameMultiplierLevel: 0.0
     },
     {
       title: "Relaxing Meditation",
@@ -375,6 +410,11 @@ const App: React.FC = () => {
       xpGain: 1,
       speed: 5000,
       currentSpeed: 0,
+      gameActive: false,
+      gameType: "sand",
+      gameMultiplier: 1.00,
+      gameMultiplierMax: 2.00,
+      gameMultiplierLevel: 0.0
     }
   ]);
 
@@ -762,46 +802,45 @@ const App: React.FC = () => {
     });
   };
 
+  const calculateGameMultiplier = (baseMultiplier: number, level: number, maxMultiplier: number) => {
+    return Math.min(baseMultiplier + level, maxMultiplier);
+  };
+
   const togglePlayActive = (index: number) => {
     setPlay(prevPlay => {
-      const updatedPlay = [...prevPlay];
-      const item = updatedPlay[index];
-      const newActiveState = !item.active;
-
-      updatedPlay[index] = {
-        ...item,
-        active: newActiveState,
-        currentSpeed: 0
-      };
-
-      setCharacter(prevCharacter => {
-        const newCharacter = { ...prevCharacter };
-
-        // Count active play items for each category
-        const activeCategoryCounts = updatedPlay.reduce((counts, playItem) => {
-          if (playItem.active) {
-            counts.type[playItem.category.type] = (counts.type[playItem.category.type] || 0) + 1;
-            counts.subcategory[playItem.category.subcategory] = (counts.subcategory[playItem.category.subcategory] || 0) + 1;
+      return prevPlay.map(item => {
+        if (item.active) {
+          const newCurrentSpeed = item.currentSpeed + 16.67;
+          if (newCurrentSpeed >= item.speed) {
+            const newXp = item.xp + (item.xpGain * item.gameMultiplier);
+            if (newXp >= item.maxXp) {
+              updateCharacterPlayExperience(item.category, item.xpGain * item.gameMultiplier);
+              return {
+                ...item,
+                currentLevel: item.currentLevel + 1,
+                xp: newXp - item.maxXp,
+                maxXp: Math.floor(item.maxXp * 1.1),
+                currentSpeed: 0,
+                gameMultiplierLevel: Math.min(item.gameMultiplierLevel + 0.01, item.gameMultiplierMax - 1),
+                gameMultiplier: calculateGameMultiplier(1.00, item.gameMultiplierLevel + 0.01, item.gameMultiplierMax)
+              };
+            } else {
+              updateCharacterPlayExperience(item.category, item.xpGain * item.gameMultiplier);
+              return {
+                ...item,
+                xp: newXp,
+                currentSpeed: 0
+              };
+            }
+          } else {
+            return {
+              ...item,
+              currentSpeed: newCurrentSpeed
+            };
           }
-          return counts;
-        }, { type: {} as Record<string, number>, subcategory: {} as Record<string, number> });
-
-        // Update active state for type category
-        if (newCharacter.play.type[item.category.type]) {
-          newCharacter.play.type[item.category.type].active =
-            activeCategoryCounts.type[item.category.type] > 0;
         }
-
-        // Update active state for subcategory
-        if (newCharacter.play.subcategory[item.category.subcategory]) {
-          newCharacter.play.subcategory[item.category.subcategory].active =
-            activeCategoryCounts.subcategory[item.category.subcategory] > 0;
-        }
-
-        return newCharacter;
+        return item;
       });
-
-      return updatedPlay;
     });
   };
 
@@ -1062,7 +1101,13 @@ const App: React.FC = () => {
           setTrainingTalents={setTrainingTalents}
         />;
       case 'Play':
-        return <Play play={play} setPlay={setPlay} togglePlayActive={togglePlayActive} character={character} />;
+        return <Play
+          play={play}
+          setPlay={setPlay}
+          togglePlayActive={togglePlayActive}
+          character={character}
+          calculateGameMultiplier={calculateGameMultiplier}
+        />;
       case 'Compete':
         return <Compete />;
       case 'Prestige':
